@@ -35,6 +35,7 @@ public class ChessPiece {
 
     @Override
     public int hashCode() {
+        // super important hash function, do not edit!!! //
         return Objects.hash(pieceType, pieceColor);
     }
 

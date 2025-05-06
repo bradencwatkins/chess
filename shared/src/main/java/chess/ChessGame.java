@@ -22,7 +22,7 @@ public class ChessGame {
      */
     public TeamColor getTeamTurn() {
         throw new RuntimeException("Not implemented");
-
+            // some sort of comment here //
            // return this.TeamColor?
     }
 

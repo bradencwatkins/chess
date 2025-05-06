@@ -22,6 +22,7 @@ public class ChessMove {
         this.promotionPiece = promotionPiece;
     }
 
+    // some sick getters and setters //
     /**
      * @return ChessPosition of starting location
      */
