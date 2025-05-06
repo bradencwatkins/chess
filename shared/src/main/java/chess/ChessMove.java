@@ -2,7 +2,7 @@ package chess;
 
 import java.util.Objects;
 
-//CLASS THAT DICTATES POSSIBLE MOVES
+//CLASS THAT DICTATES
 
 /**
  * Represents moving a chess piece on a chessboard

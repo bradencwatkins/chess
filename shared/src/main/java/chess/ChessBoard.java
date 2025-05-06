@@ -3,7 +3,7 @@ package chess;
 import java.util.Arrays;
 import java.util.Objects;
 
-//REPRESENTS A CHESSBOARD
+//REPRESENTS
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
