@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+//REPRESENTS  A CHESS PIECE
+
 /**
  * Represents a single chess piece
  * <p>

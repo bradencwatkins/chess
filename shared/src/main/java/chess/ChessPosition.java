@@ -34,6 +34,7 @@ public class ChessPosition {
         return col;
     }
 
+    //PRINTS ex: [1,2]
     @Override
     public String toString() {
         return "[" + row + "," + col + "]";
