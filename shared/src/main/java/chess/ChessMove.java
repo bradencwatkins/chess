@@ -2,7 +2,7 @@ package chess;
 
 import java.util.Objects;
 
-//CLASS THAT DICTATES
+//CLASS THAT DICTATES CHESS MOVES (beginning and end position)
 
 /**
  * Represents moving a chess piece on a chessboard

@@ -69,6 +69,7 @@ public class ChessBoard {
 
     }
 
+    //RETURN THE BOARD TO ACCESS IT (probably avoid using)
     public ChessPiece[][] getBoard() {
         return squares;
     }

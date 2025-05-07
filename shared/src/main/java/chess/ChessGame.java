@@ -12,6 +12,7 @@ import java.util.Collection;
  */
 public class ChessGame {
 
+    //FIND A USE FOR THIS VARIABLE
     private ChessBoard chessBoard;
     public ChessGame() {
 

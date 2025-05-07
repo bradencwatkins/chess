@@ -2,7 +2,7 @@ package chess;
 
 import java.util.Objects;
 
-//REPRESENTS A CHESS PIECE
+//REPRESENTS A CHESS PIECE's POSITION
 
 /**
  * Represents a single square position on a chess board

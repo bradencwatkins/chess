@@ -93,6 +93,7 @@ public class ChessPiece {
         }
 
         if (this.getPieceType() == pieceType.QUEEN){
+            //ALL POSSIBLE QUEEN MOVES
             upRight(newPos, myPosition, currBoard, possibleMoves);
             upLeft(newPos, myPosition, currBoard, possibleMoves);
             downRight(newPos, myPosition, currBoard, possibleMoves);
