@@ -33,9 +33,9 @@ public class ChessPiece {
         return pieceType == that.pieceType && pieceColor == that.pieceColor;
     }
 
+    //HASH TO MAKE IT BE ABLE TO EQUATE
     @Override
     public int hashCode() {
-        // super important hash function, do not edit!!! //
         return Objects.hash(pieceType, pieceColor);
     }
 

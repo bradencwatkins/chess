@@ -90,6 +90,7 @@ public class ChessBoard {
         return Arrays.deepHashCode(squares);
     }
 
+    //PRINTS CHESSBOARD IN A READABLE MANNER
     @Override
     public String toString() {
         return "ChessBoard{" +
