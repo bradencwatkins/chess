@@ -2,8 +2,6 @@ package chess;
 
 import java.util.Objects;
 
-//REPRESENTS A CHESS PIECE's POSITION
-
 /**
  * Represents a single square position on a chess board
  * <p>
@@ -14,7 +12,6 @@ public class ChessPosition {
 
     private final int row;
     private final int col;
-
     public ChessPosition(int row, int col) {
         this.row = row;
         this.col = col;
@@ -36,10 +33,10 @@ public class ChessPosition {
         return col;
     }
 
-    //PRINTS ex: [1,2]
-    @Override
-    public String toString() {
-        return "[" + row + "," + col + "]";
+    public ChessPosition changePostion(int rowChange, int colChange){
+        int newRow = row + rowChange;
+        int newCol = col + colChange;
+        return new ChessPosition(newRow, newCol);
     }
 
     @Override
@@ -59,4 +56,8 @@ public class ChessPosition {
         return Objects.hash(row, col);
     }
 
+    @Override
+    public String toString() {
+        return row + "," + col;
+    }
 }

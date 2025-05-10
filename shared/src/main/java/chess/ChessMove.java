@@ -2,8 +2,6 @@ package chess;
 
 import java.util.Objects;
 
-//CLASS THAT DICTATES CHESS MOVES (beginning and end position)
-
 /**
  * Represents moving a chess piece on a chessboard
  * <p>
@@ -14,7 +12,7 @@ public class ChessMove {
 
     private final ChessPosition startPosition;
     private final ChessPosition endPosition;
-    private final ChessPiece.PieceType promotionPiece;
+    private final ChessPiece.PieceType  promotionPiece;
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
         this.startPosition = startPosition;
@@ -43,14 +41,8 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        return this.promotionPiece;
+        return promotionPiece;
     }
-
-    @Override
-    public String toString() {
-        return endPosition.toString() + this.getPromotionPiece();
-    }
-
 
     @Override
     public boolean equals(Object o) {
@@ -67,5 +59,10 @@ public class ChessMove {
     @Override
     public int hashCode() {
         return Objects.hash(startPosition, endPosition, promotionPiece);
+    }
+
+    @Override
+    public String toString() {
+        return "[" + endPosition + "]" + promotionPiece;
     }
 }
