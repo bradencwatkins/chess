@@ -12,8 +12,7 @@ import java.util.Collection;
  */
 public class ChessGame {
 
-    //FIND A USE FOR THIS VARIABLE
-    private ChessBoard chessBoard;
+
     public ChessGame() {
 
     }
@@ -23,7 +22,7 @@ public class ChessGame {
      */
     public TeamColor getTeamTurn() {
         throw new RuntimeException("Not implemented");
-           // return this.TeamColor?
+           // return this.TeamColor
     }
 
     /**
@@ -110,6 +109,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        return this.chessBoard;
+        return this.ChessBoard;
     }
 }
