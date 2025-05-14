@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -29,6 +31,36 @@ public class ChessBoard {
     //REMOVES PIECE AT A CERTAIN SQUARE
     public void removePiece(ChessPosition position){
         squares[position.getRow() - 1][position.getColumn() - 1] = null;
+    }
+
+    public ChessPosition returnKingPosition(ChessGame.TeamColor team){
+        for (int i = 0; i < 8; i++){
+            for (int j = 0; j < 8; j++){
+                if (squares[i][j] != null) {
+                    if (squares[i][j].getPieceType() == ChessPiece.PieceType.KING &&
+                            squares[i][j].getTeamColor() == team) {
+                        return new ChessPosition(i + 1, j + 1);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public Collection<ChessPosition> getAllPositions(ChessGame.TeamColor team){
+        Collection<ChessPosition> piecePositions = new ArrayList<>();
+
+        for (int i = 0; i < 8; i++){
+            for (int j = 0; j < 8; j++){
+                if (squares[i][j] != null) {
+                    if (squares[i][j].getTeamColor() == team) {
+                        piecePositions.add(new ChessPosition(i + 1, j + 1));
+                    }
+                }
+            }
+        }
+
+        return piecePositions;
     }
 
     /**
