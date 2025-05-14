@@ -164,6 +164,7 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
+        //RETURN TRUE IF NO POSSIBLE MUVES PLUS IN CHECK
     }
 
     /**
@@ -175,6 +176,7 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
+        //RETURN TRUE IF NO POSSIBLE MUVES PLUS NOT IN CHECK
     }
 
     /**
