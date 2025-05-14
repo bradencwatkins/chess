@@ -168,7 +168,7 @@ public class ChessGame {
         Collection<ChessMove> allMoves = new ArrayList<>();
 
         for (ChessPosition position : friendlyPieces){
-            allMoves.addAll(chessBoard.getPiece(position).pieceMoves(chessBoard, position));
+            allMoves.addAll(validMoves(position));
         }
 
         if (allMoves.isEmpty() && isInCheck(teamColor)){
