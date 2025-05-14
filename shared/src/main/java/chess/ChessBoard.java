@@ -26,6 +26,11 @@ public class ChessBoard {
         squares[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
+    //REMOVES PIECE AT A CERTAIN SQUARE
+    public void removePiece(ChessPosition position){
+        squares[position.getRow() - 1][position.getColumn() - 1] = null;
+    }
+
     /**
      * Gets a chess piece on the chessboard
      *
@@ -36,6 +41,8 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         return squares[position.getRow() - 1][position.getColumn() - 1];
     }
+
+
 
     /**
      * Sets the board to the default starting board
