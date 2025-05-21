@@ -94,8 +94,7 @@ public class ChessGame {
                 chessBoard.addPiece(endPosition, capturedPiece);
             }
         }
-
-
+        
         return endMoves;
     }
 
