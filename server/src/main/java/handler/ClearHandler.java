@@ -1,6 +1,7 @@
 package handler;
 
 import com.google.gson.Gson;
+import result.MessageResult;
 import service.ClearService;
 import spark.*;
 
@@ -12,10 +13,10 @@ public class ClearHandler implements Route {
         try {
             clearService.clearData();
             res.status(200);
-            return gson.toJson("Database cleared successfully");
+            return gson.toJson(new MessageResult("Database cleared successfully"));
         } catch(RuntimeException r) {
             res.status(500);
-            return gson.toJson("Error clearing database");
+            return gson.toJson(new MessageResult("Error clearing database"));
         }
     }
 
