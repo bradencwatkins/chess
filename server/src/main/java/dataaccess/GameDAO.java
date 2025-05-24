@@ -3,7 +3,9 @@ package dataaccess;
 import model.GameData;
 import model.UserData;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GameDAO {
@@ -21,6 +23,10 @@ public class GameDAO {
 
     public int generateNewGameID() {
         return nextGameID++;
+    }
+
+    public Collection<GameData> getGames(){
+        return games.values();
     }
 
     public void clear(){

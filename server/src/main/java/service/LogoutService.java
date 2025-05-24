@@ -7,7 +7,7 @@ public class LogoutService {
     private final AuthDAO authDAO = new AuthDAO();
 
     public void logout(String authToken) throws UnauthorizedException{
-        System.out.println(authToken);
+
         AuthData token = authDAO.getToken(authToken);
         if (token == null){
             throw new UnauthorizedException("Token does not exist");
