@@ -18,7 +18,6 @@ public class RegisterHandler implements Route {
 
     @Override
     public Object handle(Request req, Response res){
-        System.out.println("register attempted");
 
         try {
             RegisterRequest registerRequest = gson.fromJson(req.body(), RegisterRequest.class);

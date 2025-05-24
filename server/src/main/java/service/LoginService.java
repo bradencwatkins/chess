@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
+import model.AuthData;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
 import request.LoginRequest;
@@ -26,6 +27,8 @@ public class LoginService {
         }
 
         String token = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(token, request.username());
+        authDAO.createAuth(authData);
         return new LoginResult(request.username(), token);
     }
 
