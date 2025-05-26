@@ -30,6 +30,7 @@ public class LoginHandler implements Route{
                 return gson.toJson(new MessageResult("Error: bad request"));
             }
 
+
             LoginResult result = loginService.login(loginRequest);
             res.status(200);
             return gson.toJson(result);
@@ -37,6 +38,10 @@ public class LoginHandler implements Route{
         catch (UnauthorizedException u){
             res.status(401);
             return gson.toJson(new MessageResult("Error: Username doesn't exist"));
+        }
+        catch (Exception e){
+            res.status(400);
+            return gson.toJson(new MessageResult("Error: bad request"));
         }
     }
 

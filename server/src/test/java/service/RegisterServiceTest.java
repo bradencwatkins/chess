@@ -7,13 +7,14 @@ import result.RegisterResult;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RegisterServiceTest {
+    private final ClearService clearService = new ClearService();
 
     @Test
     public void testRegisterSuccess() throws AlreadyTakenException {
         RegisterService service = new RegisterService();
         RegisterRequest request = new RegisterRequest("yo", "mama", "yomama@gmail");
 
-
+        clearService.clearData();
         RegisterResult result = service.register(request);
 
         assertNotNull(result);
