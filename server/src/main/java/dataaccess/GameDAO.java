@@ -50,6 +50,9 @@ public class GameDAO {
     public GameMetadata[] getGamesData(){
         List<GameMetadata> gameList = new ArrayList<>();
 
+        if (games.isEmpty()){
+            return new GameMetadata[0];
+        }
 
         for (GameData game : games.values()) {
             GameMetadata gameData = new GameMetadata(
@@ -59,6 +62,7 @@ public class GameDAO {
                     game.blackUsername());
             gameList.add(gameData);
         }
+
         return gameList.toArray(new GameMetadata[0]);
     }
 

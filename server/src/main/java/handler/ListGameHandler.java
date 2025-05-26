@@ -24,7 +24,7 @@ public class ListGameHandler implements Route {
 
 
             res.status(200);
-            if (gamesList == null){
+            if (gamesList == null || gamesList.length == 0){
                 return gson.toJson(new ListGameResult(new GameMetadata[0]));
             }
             return gson.toJson(new ListGameResult(gamesList));

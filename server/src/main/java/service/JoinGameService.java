@@ -11,21 +11,28 @@ public class JoinGameService {
     private final GameDAO gameDAO = new GameDAO();
     private final AuthDAO authDAO = new AuthDAO();
 
-    public void joinGame(String authToken, String playerColor, int gameID) throws AlreadyTakenException{
+    public void joinGame(String authToken, String playerColor, int gameID) throws Exception {
 
 
         AuthData token = authDAO.getToken(authToken);
         if (token == null){
-            throw new AlreadyTakenException("Token does not exist");
+            throw new UnauthorizedException("Token does not exist");
         }
         String username = authDAO.getUsernameByToken(authToken);
 
         GameData gameJoin = gameDAO.getGame(gameID);
-        if (gameJoin.blackUsername() != null && Objects.equals(playerColor, "BLACK")){
-            throw new AlreadyTakenException("Color already taken");
+        if (gameJoin == null){
+            throw new Exception("gameID doent exist");
         }
-        if (gameJoin.whiteUsername() != null && Objects.equals(playerColor, "WHITE")){
-            throw new AlreadyTakenException("Color already taken");
+        if ("BLACK".equalsIgnoreCase(playerColor)){
+            if (gameJoin.blackUsername() != null && !gameJoin.blackUsername().equals(username)) {
+                throw new AlreadyTakenException("Color already taken");
+            }
+        }
+        if ("WHITE".equalsIgnoreCase(playerColor)){
+            if (gameJoin.blackUsername() != null && !gameJoin.blackUsername().equals(username)) {
+                throw new AlreadyTakenException("Color already taken");
+            }
         }
 
         gameDAO.updateGame(playerColor, username, gameID);

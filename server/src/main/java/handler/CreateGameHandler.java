@@ -20,13 +20,19 @@ public class CreateGameHandler implements Route {
             CreateGameRequest gameName = gson.fromJson(req.body(), CreateGameRequest.class);
             String authToken = req.headers("Authorization");
 
-            if (gameName == null || authToken == null || authToken.isBlank()){
+            if (gameName == null || authToken == null || authToken.isBlank()
+                || gameName.gameName() == null || gameName.gameName().isBlank()){
                 res.status(400);
                 return gson.toJson(new MessageResult("Error: Bad request"));
             }
 
 
             CreateGameResult gameID = createGameService.createGame(authToken, gameName);
+            if (gameID == null){
+                res.status(400);
+                return gson.toJson(new MessageResult("Error: Bad request"));
+            }
+
             res.status(200);
             return gson.toJson(gameID);
         }
