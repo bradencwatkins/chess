@@ -1,5 +1,7 @@
 package handler;
 import com.google.gson.Gson;
+import dataaccess.UserDAO;
+import model.UserData;
 import request.LoginRequest;
 import result.LoginResult;
 import result.MessageResult;
@@ -11,16 +13,18 @@ import spark.*;
 public class LoginHandler implements Route{
     private final LoginService loginService = new LoginService();
     private final Gson gson = new Gson();
+    private final UserDAO userDAO = new UserDAO();
 
     public Object handle(Request req, Response res){
 
         try {
             LoginRequest loginRequest = gson.fromJson(req.body(), LoginRequest.class);
 
+
             //CHECK IF USERNAME OR PASSWORD IS BLANK
             if (loginRequest == null || loginRequest.username() == null ||
                 loginRequest.username().isBlank() || loginRequest.password() == null ||
-                loginRequest.password().isBlank()) {
+                loginRequest.password().isBlank()){
 
                 res.status(400);
                 return gson.toJson(new MessageResult("Error: bad request"));

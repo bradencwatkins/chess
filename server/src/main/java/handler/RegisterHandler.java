@@ -21,6 +21,7 @@ public class RegisterHandler implements Route {
 
         try {
             RegisterRequest registerRequest = gson.fromJson(req.body(), RegisterRequest.class);
+            System.out.println(registerRequest.email());
 
             //CHECK IF THE USERS INPUT WAS BLANK OR NULL
             if (registerRequest == null || registerRequest.username() == null ||
