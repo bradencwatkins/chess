@@ -12,9 +12,11 @@ public class LoginServiceTest {
 
     private final RegisterService registerService = new RegisterService();
     private final LoginService loginService = new LoginService();
+    private final ClearService clearService = new ClearService();
 
 
     public void setup() throws Exception{
+        clearService.clearData();
         RegisterRequest request = new RegisterRequest("user", "pass", "email");
         registerService.register(request);
     }

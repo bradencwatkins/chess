@@ -13,9 +13,12 @@ public class ClearServiceTest {
     private final RegisterService registerService = new RegisterService();
     private final LoginService loginService = new LoginService();
     private final UserDAO userDAO = new UserDAO();
+    private final ClearService clearService = new ClearService();
+
 
     @BeforeEach
     public void setup() throws Exception{
+        clearService.clearData();
         RegisterRequest request = new RegisterRequest("user", "pass", "email");
         registerService.register(request);
     }

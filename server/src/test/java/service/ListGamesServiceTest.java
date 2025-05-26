@@ -16,10 +16,12 @@ public class ListGamesServiceTest {
     private final LoginService loginService = new LoginService();
     private final CreateGameService createGameService = new CreateGameService();
     private final ListGameService listGameService = new ListGameService();
+    private final ClearService clearService = new ClearService();
 
     private String validAuthToken;
 
     public void setup() throws Exception {
+        clearService.clearData();
         RegisterRequest registerRequest = new RegisterRequest("user", "pass", "email");
         registerService.register(registerRequest);
 

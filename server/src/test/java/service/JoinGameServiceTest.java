@@ -17,8 +17,11 @@ public class JoinGameServiceTest {
     private String validAuthToken;
     private final CreateGameService createGameService = new CreateGameService();
     private int createdGameID;
+    private final ClearService clearService = new ClearService();
+
 
     public void setup() throws Exception{
+        clearService.clearData();
         RegisterRequest request = new RegisterRequest("user", "pass", "email");
         registerService.register(request);
         LoginRequest loginRequest = new LoginRequest("user","pass");
