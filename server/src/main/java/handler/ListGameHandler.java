@@ -1,13 +1,11 @@
 package handler;
 import com.google.gson.Gson;
-import model.GameData;
+import result.GameMetadata;
 import result.ListGameResult;
 import result.MessageResult;
 import service.ListGameService;
 import service.UnauthorizedException;
 import spark.*;
-
-import java.util.Collection;
 
 public class ListGameHandler implements Route {
     private final ListGameService listGameService = new ListGameService();
@@ -22,11 +20,15 @@ public class ListGameHandler implements Route {
                 return gson.toJson(new MessageResult("Error: Bad request"));
             }
 
-            ListGameResult gamesList = listGameService.listGames(authToken);
+            GameMetadata[] gamesList = listGameService.listGames(authToken);
 
 
             res.status(200);
-            return gson.toJson(gamesList);
+            if (gamesList == null){
+                return gson.toJson(new ListGameResult(new GameMetadata[0]));
+            }
+            return gson.toJson(new ListGameResult(gamesList));
+
 
         }
         catch (UnauthorizedException u){

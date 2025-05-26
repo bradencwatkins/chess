@@ -17,6 +17,11 @@ public class AuthDAO {
         tokens.put(authData.authToken(), authData);
     }
 
+    public String getUsernameByToken(String authToken) {
+        AuthData auth = tokens.get(authToken);
+        return auth != null ? auth.username() : null;
+    }
+
     public void deleteAuth(String token){
         tokens.remove(token);
     }

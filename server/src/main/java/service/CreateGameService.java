@@ -14,7 +14,7 @@ public class CreateGameService {
 
     public CreateGameResult createGame(String token, CreateGameRequest gameName) throws UnauthorizedException{
 
-        GameData gameData = gameDAO.getGame(gameName.gameName());
+        GameData gameData = gameDAO.getGame(gameName.gameID());
         if (gameData != null){
             throw new UnauthorizedException("Game name already exists");
         }
