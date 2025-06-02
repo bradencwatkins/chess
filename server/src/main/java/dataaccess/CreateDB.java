@@ -21,7 +21,7 @@ public class CreateDB {
                 username VARCHAR(256) NOT NULL,
                 json TEXT,
                 PRIMARY KEY (id),
-                INDEX(authToken)
+                INDEX(authToken),
                 INDEX(username)
             )
             """;

@@ -11,6 +11,6 @@ public interface DataAccess {
     void clearUsers() throws DataAccessException;
 
     AuthData createAuth(AuthData auth) throws DataAccessException;
-
+    void clearAuth() throws DataAccessException;
 
 }

@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import org.junit.jupiter.api.Test;
 import request.RegisterRequest;
 import result.RegisterResult;
@@ -10,7 +11,7 @@ public class RegisterServiceTest {
     private final ClearService clearService = new ClearService();
 
     @Test
-    public void testRegisterSuccess() throws AlreadyTakenException {
+    public void testRegisterSuccess() throws AlreadyTakenException, DataAccessException {
         RegisterService service = new RegisterService();
         RegisterRequest request = new RegisterRequest("yo", "mama", "yomama@gmail");
 
@@ -24,7 +25,7 @@ public class RegisterServiceTest {
     }
 
     @Test
-    public void testDuplicateRegistration() throws AlreadyTakenException {
+    public void testDuplicateRegistration() throws AlreadyTakenException, DataAccessException {
         RegisterService service = new RegisterService();
         RegisterRequest request = new RegisterRequest("yo", "mama", "yomama@gmail");
         service.register(request);

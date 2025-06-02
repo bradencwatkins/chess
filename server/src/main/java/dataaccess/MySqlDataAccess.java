@@ -1,6 +1,7 @@
 package dataaccess;
 
 import com.google.gson.Gson;
+import model.AuthData;
 import model.UserData;
 
 import javax.xml.crypto.Data;
@@ -53,6 +54,17 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     //AUTH GOODIES
+    public AuthData createAuth(AuthData auth) throws DataAccessException{
+        String json = new Gson().toJson(auth);
+        var statement = "INSERT INTO auth (authToken, username, json) VALUES (?, ?, ?)";
+        var id = executeUpdate(statement, auth.authToken(), auth.username(), json);
+        return auth;
+    }
+
+    public void clearAuth() throws DataAccessException {
+        var statement = "TRUNCATE TABLE auth";
+        executeUpdate(statement);
+    }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection();

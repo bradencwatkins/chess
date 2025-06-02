@@ -1,18 +1,25 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 
 public class ClearService {
-    private final AuthDAO authDAO = new AuthDAO();
-    private final UserDAO userDAO = new UserDAO();
-    private final GameDAO gameDAO = new GameDAO();
+    private final DataAccess dataAccess;
+
+    public ClearService() {
+        try {
+            this.dataAccess = new MySqlDataAccess();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to initialize ClearService");
+        }
+    }
 
     //CLEAR ALL DATABASES
-    public void clearData(){
-        userDAO.clear();
-        authDAO.clear();
-        gameDAO.clear();
+    public void clearData() throws DataAccessException {
+        try {
+            dataAccess.clearUsers();
+            dataAccess.clearAuth();
+        } catch (DataAccessException e){
+            throw new DataAccessException("Error: Clear Failed");
+        }
     }
 }
