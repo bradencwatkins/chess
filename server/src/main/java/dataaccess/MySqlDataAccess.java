@@ -84,6 +84,12 @@ public class MySqlDataAccess implements DataAccess {
         return new Gson().fromJson(json, AuthData.class);
     }
 
+    //DELETE AUTH TOKEN WHEN USER LOGS OUT
+    public void deleteAuth(String authToken) throws DataAccessException {
+        var statement = "DELETE FROM auth WHERE authToken = ?";
+        executeUpdate(statement, authToken);
+    }
+
     public void clearAuth() throws DataAccessException {
         var statement = "TRUNCATE TABLE auth";
         executeUpdate(statement);
