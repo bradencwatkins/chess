@@ -1,7 +1,6 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
@@ -12,12 +11,19 @@ import result.MessageResult;
 import java.util.UUID;
 
 public class LoginService {
-    private final UserDAO userDAO = new UserDAO();
-    private final AuthDAO authDAO = new AuthDAO();
+    private final DataAccess dataAccess;
+
+    public LoginService() {
+        try {
+            this.dataAccess = new MySqlDataAccess();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to initialize Login service");
+        }
+    }
 
     public LoginResult login(LoginRequest request) throws Exception {
 
-        UserData user = userDAO.getUser(request.username());
+        UserData user = dataAccess.getUser(request.username());
         if (user == null){
             throw new UnauthorizedException("Username does not exist");
         }
@@ -32,7 +38,7 @@ public class LoginService {
 
         String token = UUID.randomUUID().toString();
         AuthData authData = new AuthData(token, request.username());
-        authDAO.createAuth(authData);
+        dataAccess.createAuth(authData);
         return new LoginResult(request.username(), token);
     }
 

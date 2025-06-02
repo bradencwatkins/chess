@@ -1,5 +1,6 @@
 package handler;
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.UserData;
 import request.LoginRequest;
@@ -10,16 +11,14 @@ import service.LoginService;
 import service.UnauthorizedException;
 import spark.*;
 
-public class LoginHandler implements Route{
-    private final LoginService loginService = new LoginService();
+public class LoginHandler implements Route {
     private final Gson gson = new Gson();
-    private final UserDAO userDAO = new UserDAO();
 
     public Object handle(Request req, Response res){
 
         try {
+            LoginService loginService = new LoginService();
             LoginRequest loginRequest = gson.fromJson(req.body(), LoginRequest.class);
-
 
             //CHECK IF USERNAME OR PASSWORD IS BLANK
             if (loginRequest == null || loginRequest.username() == null ||
@@ -30,7 +29,6 @@ public class LoginHandler implements Route{
                 return gson.toJson(new MessageResult("Error: bad request"));
             }
 
-
             LoginResult result = loginService.login(loginRequest);
             res.status(200);
             return gson.toJson(result);
@@ -39,10 +37,15 @@ public class LoginHandler implements Route{
             res.status(401);
             return gson.toJson(new MessageResult("Error: Username doesn't exist"));
         }
+        catch (DataAccessException e){
+            res.status(500);
+            return gson.toJson(new MessageResult("Error: Database access error"));
+        }
         catch (Exception e){
-            res.status(400);
+            res.status(500);
             return gson.toJson(new MessageResult("Error: bad request"));
         }
+
     }
 
 }

@@ -61,6 +61,29 @@ public class MySqlDataAccess implements DataAccess {
         return auth;
     }
 
+    public AuthData getAuth(String auth) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT id, json FROM auth WHERE authToken=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, auth);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readAuth(rs);
+                    }
+                }
+            }
+        }
+        catch (Exception e){
+            throw new DataAccessException("Unable to read user");
+        }
+        return null;
+    }
+
+    public AuthData readAuth(ResultSet rs) throws SQLException {
+        String json = rs.getString("json");
+        return new Gson().fromJson(json, AuthData.class);
+    }
+
     public void clearAuth() throws DataAccessException {
         var statement = "TRUNCATE TABLE auth";
         executeUpdate(statement);
