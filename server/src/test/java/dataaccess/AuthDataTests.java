@@ -44,7 +44,7 @@ public class AuthDataTests {
     }
 
     @Test
-    void testGetAuthNegative_notFound() throws DataAccessException {
+    void testGetAuthNegativeNotFound() throws DataAccessException {
         DataAccess dataAccess = new MySqlDataAccess();
         assertNull(dataAccess.getAuth("invalidToken"));
     }
@@ -59,7 +59,7 @@ public class AuthDataTests {
     }
 
     @Test
-    void testGetUsernameByTokenNegative_invalidToken() {
+    void testGetUsernameByTokenNegativeInvalidToken() {
         assertThrows(DataAccessException.class, () -> dataAccess.getUsernameByToken("badToken"));
     }
 

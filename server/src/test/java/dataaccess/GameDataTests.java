@@ -67,7 +67,7 @@ public class GameDataTests {
     }
 
     @Test
-    void testUpdateGameNegative_invalidID() {
+    void testUpdateGameNegativeInvalidID() {
         assertThrows(NullPointerException.class, () -> dataAccess.updateGame("WHITE", "userX", -1));
     }
 

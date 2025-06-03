@@ -18,10 +18,10 @@ public class LogoutServiceTest {
 
     public void setup() throws Exception{
         clearService.clearData();
-        RegisterRequest request = new RegisterRequest("user", "pass", "email");
-        registerService.register(request);
-        LoginRequest loginRequest = new LoginRequest("user","pass");
-        LoginResult loginResult = loginService.login(loginRequest);
+        RegisterRequest req = new RegisterRequest("userGuy", "passwerd", "email");
+        registerService.register(req);
+        LoginRequest loginReq = new LoginRequest("userGuy","passwerd");
+        LoginResult loginResult = loginService.login(loginReq);
         validAuthToken = loginResult.authToken();
     }
 

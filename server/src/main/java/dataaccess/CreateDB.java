@@ -2,7 +2,7 @@ package dataaccess;
 
 public class CreateDB {
 
-    public static final String createUserTable = """
+    public static final String CREATE_USER_TABLE = """
             CREATE TABLE IF NOT EXISTS user (
                 id INT NOT NULL AUTO_INCREMENT,
                 username VARCHAR(256) UNIQUE NOT NULL,
@@ -14,7 +14,7 @@ public class CreateDB {
             )
             """;
 
-    public static final String createAuthTable = """
+    public static final String CREATE_AUTH_TABLE = """
             CREATE TABLE IF NOT EXISTS auth (
                 id INT NOT NULL AUTO_INCREMENT,
                 authToken VARCHAR(256) UNIQUE NOT NULL,
@@ -26,7 +26,7 @@ public class CreateDB {
             )
             """;
 
-    public static final String createGameTable = """
+    public static final String CREATE_GAME_TABLE = """
             CREATE TABLE IF NOT EXISTS game (
                 gameID INT NOT NULL AUTO_INCREMENT,
                 whiteUsername VARCHAR(256),

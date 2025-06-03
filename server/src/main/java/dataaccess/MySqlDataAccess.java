@@ -7,7 +7,6 @@ import model.GameData;
 import result.GameMetadata;
 import service.UnauthorizedException;
 
-import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -201,9 +200,9 @@ public class MySqlDataAccess implements DataAccess {
              var ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
             for (int i = 0; i < params.length; i++) {
                 var param = params[i];
-                if (param instanceof String p) ps.setString(i + 1, p);
-                else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                else if (param == null) ps.setNull(i + 1, NULL);
+                if (param instanceof String p) { ps.setString(i + 1, p); }
+                else if  (param instanceof Integer p) { ps.setInt(i + 1, p); }
+                else if (param == null) { ps.setNull(i + 1, NULL); }
             }
             ps.executeUpdate();
             var rs = ps.getGeneratedKeys();
@@ -215,9 +214,9 @@ public class MySqlDataAccess implements DataAccess {
     }
 
     private final String[] createStatements = {
-            CreateDB.createUserTable,
-            CreateDB.createAuthTable,
-            CreateDB.createGameTable
+            CreateDB.CREATE_USER_TABLE,
+            CreateDB.CREATE_AUTH_TABLE,
+            CreateDB.CREATE_GAME_TABLE
     };
 
     private void configureDatabase() throws DataAccessException {

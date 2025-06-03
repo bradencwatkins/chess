@@ -16,7 +16,6 @@ public class CreateGameServiceTest {
     private final CreateGameService createGameService = new CreateGameService();
     private final ClearService clearService = new ClearService();
 
-
     private String validAuthToken;
 
     public void setup() throws Exception{
