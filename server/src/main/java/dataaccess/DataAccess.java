@@ -4,6 +4,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
+import result.GameMetadata;
 
 public interface DataAccess {
 
@@ -18,7 +19,7 @@ public interface DataAccess {
 
     GameData createGame(GameData game) throws DataAccessException;
     GameData getGame(int gameID) throws DataAccessException;
-
+    GameMetadata[] getGamesData() throws DataAccessException;
     void clearGames() throws DataAccessException;
 
 }

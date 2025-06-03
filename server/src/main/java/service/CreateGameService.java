@@ -24,10 +24,6 @@ public class CreateGameService {
     public CreateGameResult createGame(String token, CreateGameRequest gameName) throws UnauthorizedException, DataAccessException{
 
         try {
-//            GameData gameData = dataAccess.getGame(gameName.gameID());
-//            if (gameData != null) {
-//                throw new UnauthorizedException("Game name already exists");
-//            }
 
             AuthData authToken = dataAccess.getAuth(token);
             if (authToken == null) {

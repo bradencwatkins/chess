@@ -1,5 +1,6 @@
 package handler;
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import result.GameMetadata;
 import result.ListGameResult;
 import result.MessageResult;
@@ -8,12 +9,12 @@ import service.UnauthorizedException;
 import spark.*;
 
 public class ListGameHandler implements Route {
-    private final ListGameService listGameService = new ListGameService();
     private final Gson gson = new Gson();
 
     public Object handle(Request req, Response res){
 
         try{
+            ListGameService listGameService = new ListGameService();
             String authToken = req.headers("Authorization");
             if (authToken == null || authToken.isBlank()) {
                 res.status(400);
@@ -33,7 +34,11 @@ public class ListGameHandler implements Route {
         }
         catch (UnauthorizedException u){
             res.status(401);
-            return gson.toJson(new MessageResult("Error : unauthorized"));
+            return gson.toJson(new MessageResult("Error: unauthorized"));
+        }
+        catch (DataAccessException e) {
+            res.status(500);
+            return gson.toJson(new MessageResult("Error: Data access error"));
         }
 
     }

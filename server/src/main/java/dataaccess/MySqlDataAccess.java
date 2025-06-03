@@ -4,11 +4,13 @@ import com.google.gson.Gson;
 import model.AuthData;
 import model.UserData;
 import model.GameData;
+import result.GameMetadata;
 
 import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 import static java.sql.Types.NULL;
 
@@ -126,6 +128,29 @@ public class MySqlDataAccess implements DataAccess {
     public GameData readGame(ResultSet rs) throws SQLException {
         String json = rs.getString("json");
         return new Gson().fromJson(json, GameData.class);
+    }
+
+    public GameMetadata[] getGamesData() throws DataAccessException {
+        var gamesList = new ArrayList<GameMetadata>();
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT gameID, gameName, whiteUsername, blackUsername FROM game";
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        int gameID = rs.getInt("gameID");
+                        String gameName = rs.getString("gameName");
+                        String whiteUsername = rs.getString("whiteUsername");
+                        String blackUsername = rs.getString("blackUsername");
+
+                        gamesList.add(new GameMetadata(gameID, gameName, whiteUsername, blackUsername));
+                    }
+                }
+            }
+
+            return gamesList.toArray(new GameMetadata[0]);
+        } catch (SQLException e) {
+            throw new DataAccessException("Unable to get game list");
+        }
     }
 
     public void clearGames() throws DataAccessException {
