@@ -1,6 +1,7 @@
 package handler;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import request.JoinGameRequest;
 import result.MessageResult;
 import service.AlreadyTakenException;
@@ -13,12 +14,11 @@ import spark.Route;
 import java.util.Objects;
 
 public class JoinGameHandler implements Route {
-    private final JoinGameService joinGameService = new JoinGameService();
     private final Gson gson = new Gson();
 
     public Object handle(Request req, Response res){
-
         try {
+            JoinGameService joinGameService = new JoinGameService();
             JoinGameRequest joinGameRequest = gson.fromJson(req.body(), JoinGameRequest.class);
             String authToken = req.headers("Authorization");
 
@@ -41,9 +41,16 @@ public class JoinGameHandler implements Route {
             res.status(401);
             return gson.toJson(new MessageResult("Error: Unauthorized"));
         }
+        catch (DataAccessException e){
+            res.status(500);
+            return gson.toJson(new MessageResult("Error: Data access error"));
+        } catch (RuntimeException e) {
+            res.status(500);
+            return gson.toJson(new MessageResult("Internal Server Error"));
+        }
         catch (Exception e){
             res.status(400);
-            return gson.toJson(new MessageResult("Error: Bad request"));
+            return gson.toJson(new MessageResult("Internal Server Error"));
         }
 
 

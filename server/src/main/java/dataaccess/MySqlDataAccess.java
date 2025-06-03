@@ -5,6 +5,7 @@ import model.AuthData;
 import model.UserData;
 import model.GameData;
 import result.GameMetadata;
+import service.UnauthorizedException;
 
 import javax.xml.crypto.Data;
 import java.sql.ResultSet;
@@ -44,6 +45,24 @@ public class MySqlDataAccess implements DataAccess {
             throw new DataAccessException("Unable to read user");
         }
         return null;
+    }
+
+    public String getUsernameByToken(String authToken) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username FROM auth WHERE authToken=?";
+            try ( var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getString("username");
+                    } else {
+                        throw new UnauthorizedException("Invalid authToken");
+                    }
+                }
+            }
+        } catch (Exception e){
+            throw new DataAccessException("Unable to get username");
+        }
     }
 
     public UserData readUser(ResultSet rs) throws SQLException {
@@ -109,7 +128,7 @@ public class MySqlDataAccess implements DataAccess {
 
     public GameData getGame(int gameID) throws DataAccessException{
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM auth WHERE gameID=?";
+            var statement = "SELECT gameID, json FROM game WHERE gameID=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
                 try (var rs = ps.executeQuery()) {
@@ -151,6 +170,25 @@ public class MySqlDataAccess implements DataAccess {
         } catch (SQLException e) {
             throw new DataAccessException("Unable to get game list");
         }
+    }
+
+    public void updateGame(String playerColor, String username, int gameID) throws DataAccessException {
+
+        GameData oldGame = getGame(gameID);
+        String white = oldGame.whiteUsername();
+        String black = oldGame.blackUsername();
+
+        if ("WHITE".equalsIgnoreCase(playerColor)) {
+            white = username;
+        } else if ("BLACK".equalsIgnoreCase(playerColor)) {
+            black = username;
+        }
+
+        GameData newGame = new GameData(gameID, white, black, oldGame.gameName(), oldGame.game());
+        String newJson = new Gson().toJson(newGame);
+
+        String statement = "UPDATE game SET whiteUsername = ?, blackUsername = ?, json = ? WHERE gameID=?";
+        executeUpdate(statement, white, black, newJson, gameID);
     }
 
     public void clearGames() throws DataAccessException {

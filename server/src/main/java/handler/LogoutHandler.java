@@ -30,6 +30,9 @@ public class LogoutHandler implements Route {
         catch (DataAccessException e){
             res.status(500);
             return gson.toJson(new MessageResult("Error: Database access error"));
+        } catch (RuntimeException e) {
+            res.status(500);
+            return gson.toJson(new MessageResult("Internal Server Error"));
         }
     }
 }

@@ -20,6 +20,8 @@ public interface DataAccess {
     GameData createGame(GameData game) throws DataAccessException;
     GameData getGame(int gameID) throws DataAccessException;
     GameMetadata[] getGamesData() throws DataAccessException;
+    String getUsernameByToken(String authToken) throws  DataAccessException;
+    void updateGame(String playerColor, String username, int gameID) throws DataAccessException;
     void clearGames() throws DataAccessException;
 
 }

@@ -39,8 +39,10 @@ public class ListGameHandler implements Route {
         catch (DataAccessException e) {
             res.status(500);
             return gson.toJson(new MessageResult("Error: Data access error"));
+        } catch (RuntimeException e) {
+            res.status(500);
+            return gson.toJson(new MessageResult("Internal Server Error"));
         }
-
     }
 
 
