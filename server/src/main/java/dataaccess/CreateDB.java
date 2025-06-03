@@ -31,7 +31,7 @@ public class CreateDB {
                 gameID INT NOT NULL AUTO_INCREMENT,
                 whiteUsername VARCHAR(256),
                 blackUsername VARCHAR(256),
-                gameName VARCHAR(256),
+                gameName VARCHAR(256) UNIQUE,
                 json TEXT,
                 PRIMARY KEY (gameID),
                 INDEX(whiteUsername),

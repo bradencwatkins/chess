@@ -1,8 +1,7 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import request.CreateGameRequest;
@@ -11,27 +10,40 @@ import result.CreateGameResult;
 public class CreateGameService {
     private final GameDAO gameDAO = new GameDAO();
     private final AuthDAO authDAO = new AuthDAO();
+    private final DataAccess dataAccess;
 
-    public CreateGameResult createGame(String token, CreateGameRequest gameName) throws UnauthorizedException{
-
-        GameData gameData = gameDAO.getGame(gameName.gameID());
-        if (gameData != null){
-            throw new UnauthorizedException("Game name already exists");
+    public CreateGameService() {
+        try {
+            this.dataAccess = new MySqlDataAccess();
         }
-
-        AuthData authToken = authDAO.getToken(token);
-        if (authToken == null){
-            throw new UnauthorizedException("Not authorized");
+        catch (DataAccessException e) {
+            throw new RuntimeException("Failed to initialize Create game service");
         }
+    }
 
-        //CREATE NEW GAME
-        int newGameID = gameDAO.generateNewGameID();
-        ChessGame chessGame = new ChessGame();
-        GameData newGame = new GameData(newGameID, null, null, gameName.gameName(), chessGame);
+    public CreateGameResult createGame(String token, CreateGameRequest gameName) throws UnauthorizedException, DataAccessException{
 
-        gameDAO.createGame(newGame);
+        try {
+//            GameData gameData = dataAccess.getGame(gameName.gameID());
+//            if (gameData != null) {
+//                throw new UnauthorizedException("Game name already exists");
+//            }
 
-        return new CreateGameResult(newGameID);
+            AuthData authToken = dataAccess.getAuth(token);
+            if (authToken == null) {
+                throw new UnauthorizedException("Not authorized");
+            }
+
+            //CREATE NEW GAME
+            ChessGame chessGame = new ChessGame();
+            GameData newGame = new GameData(0, null, null, gameName.gameName(), chessGame);
+
+            newGame = dataAccess.createGame(newGame);
+
+            return new CreateGameResult(newGame.gameID());
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: Create Game failed");
+        }
 
     }
 

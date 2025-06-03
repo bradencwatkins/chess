@@ -4,6 +4,7 @@ import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
+import org.mindrot.jbcrypt.BCrypt;
 import request.LoginRequest;
 import result.LoginResult;
 import result.MessageResult;
@@ -32,7 +33,7 @@ public class LoginService {
         }
 
         //VALIDATE PASSWORD
-        if (!user.password().equals(request.password())){
+        if (!BCrypt.checkpw(request.password(), user.password())){
             throw new UnauthorizedException("Incorrect password");
         }
 

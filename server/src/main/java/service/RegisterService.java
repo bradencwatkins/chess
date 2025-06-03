@@ -3,8 +3,10 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import request.RegisterRequest;
 import result.RegisterResult;
+
 
 import java.util.UUID;
 
@@ -15,7 +17,7 @@ public class RegisterService {
         try {
             this.dataAccess = new MySqlDataAccess();
         } catch (DataAccessException e) {
-            throw new RuntimeException("Failed to initialize RegisterService");
+            throw new RuntimeException("Failed to initialize Register Service");
         }
     }
 
@@ -27,8 +29,10 @@ public class RegisterService {
                 throw new AlreadyTakenException("Username already exists");
             }
 
-            //CREATE NEW USER
-            UserData newUser = new UserData(request.username(), request.password(), request.email());
+            String hashedPassword = BCrypt.hashpw(request.password(), BCrypt.gensalt());
+
+            //CREATE NEW USER WITH HASHED PASSWORD
+            UserData newUser = new UserData(request.username(), hashedPassword, request.email());
             dataAccess.createUser(newUser);
 
             //CREATE AUTH TOKEN
@@ -41,4 +45,7 @@ public class RegisterService {
             throw new DataAccessException("Error: Register failed");
         }
     }
+
+
+
 }

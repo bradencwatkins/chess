@@ -3,6 +3,7 @@ package dataaccess;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.UserData;
+import model.GameData;
 
 import javax.xml.crypto.Data;
 import java.sql.ResultSet;
@@ -74,7 +75,7 @@ public class MySqlDataAccess implements DataAccess {
             }
         }
         catch (Exception e){
-            throw new DataAccessException("Unable to read user");
+            throw new DataAccessException("Unable to read auth");
         }
         return null;
     }
@@ -92,6 +93,43 @@ public class MySqlDataAccess implements DataAccess {
 
     public void clearAuth() throws DataAccessException {
         var statement = "TRUNCATE TABLE auth";
+        executeUpdate(statement);
+    }
+
+    //STUFF FOR GAMEDATA
+    public GameData createGame(GameData game) throws DataAccessException {
+        String json = new Gson().toJson(game);
+        var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, json) VALUES (?, ?, ?, ?)";
+        int newID = executeUpdate(statement, game.whiteUsername(), game.blackUsername(), game.gameName(), json);
+        return new GameData(newID, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
+    }
+
+
+    public GameData getGame(int gameID) throws DataAccessException{
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT id, json FROM auth WHERE gameID=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readGame(rs);
+                    }
+                }
+            }
+        }
+        catch (Exception e){
+            throw new DataAccessException("Unable to read game");
+        }
+        return null;
+    }
+
+    public GameData readGame(ResultSet rs) throws SQLException {
+        String json = rs.getString("json");
+        return new Gson().fromJson(json, GameData.class);
+    }
+
+    public void clearGames() throws DataAccessException {
+        var statement = "TRUNCATE TABLE game";
         executeUpdate(statement);
     }
 

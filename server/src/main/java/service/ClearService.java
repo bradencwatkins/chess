@@ -18,6 +18,7 @@ public class ClearService {
         try {
             dataAccess.clearUsers();
             dataAccess.clearAuth();
+            dataAccess.clearGames();
         } catch (DataAccessException e){
             throw new DataAccessException("Error: Clear Failed");
         }
