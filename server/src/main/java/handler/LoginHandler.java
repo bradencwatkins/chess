@@ -1,12 +1,9 @@
 package handler;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import dataaccess.UserDAO;
-import model.UserData;
 import request.LoginRequest;
 import result.LoginResult;
 import result.MessageResult;
-import service.AlreadyTakenException;
 import service.LoginService;
 import service.UnauthorizedException;
 import spark.*;

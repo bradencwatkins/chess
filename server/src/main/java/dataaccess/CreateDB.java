@@ -17,7 +17,7 @@ public class CreateDB {
     public static final String createAuthTable = """
             CREATE TABLE IF NOT EXISTS auth (
                 id INT NOT NULL AUTO_INCREMENT,
-                authToken VARCHAR(256) NOT NULL,
+                authToken VARCHAR(256) UNIQUE NOT NULL,
                 username VARCHAR(256) NOT NULL,
                 json TEXT,
                 PRIMARY KEY (id),

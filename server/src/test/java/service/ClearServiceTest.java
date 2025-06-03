@@ -3,8 +3,6 @@ package service;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MySqlDataAccess;
-import dataaccess.UserDAO;
-import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.RegisterRequest;

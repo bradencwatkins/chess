@@ -1,6 +1,5 @@
 package service;
 
-import dataaccess.AuthDAO;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MySqlDataAccess;
