@@ -9,7 +9,6 @@ import spark.*;
 public class ClearHandler implements Route {
     private final Gson gson = new Gson();
 
-
     public Object handle(Request req, Response res) {
         try {
             ClearService clearService = new ClearService();

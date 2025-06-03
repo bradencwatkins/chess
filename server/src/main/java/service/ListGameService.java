@@ -5,8 +5,6 @@ import model.AuthData;
 import result.GameMetadata;
 
 public class ListGameService {
-    private final AuthDAO authDAO = new AuthDAO();
-    private final GameDAO gameDAO = new GameDAO();
     private final DataAccess dataAccess;
 
     public ListGameService() {

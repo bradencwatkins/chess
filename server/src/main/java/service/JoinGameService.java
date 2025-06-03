@@ -7,8 +7,6 @@ import model.GameData;
 import java.util.Objects;
 
 public class JoinGameService {
-    private final GameDAO gameDAO = new GameDAO();
-    private final AuthDAO authDAO = new AuthDAO();
     private final DataAccess dataAccess;
 
     public JoinGameService() {

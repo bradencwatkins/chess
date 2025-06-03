@@ -1,5 +1,8 @@
 package service;
 
+import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
+import dataaccess.MySqlDataAccess;
 import dataaccess.UserDAO;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,12 +12,18 @@ import request.RegisterRequest;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClearServiceTest {
-
+    private final DataAccess dataAccess;
     private final RegisterService registerService = new RegisterService();
     private final LoginService loginService = new LoginService();
-    private final UserDAO userDAO = new UserDAO();
     private final ClearService clearService = new ClearService();
 
+    public ClearServiceTest() {
+        try {
+            this.dataAccess = new MySqlDataAccess();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("clear service failed");
+        }
+    }
 
     @BeforeEach
     public void setup() throws Exception{
@@ -25,12 +34,12 @@ public class ClearServiceTest {
 
     @Test
     public void testClearDataSuccess() throws Exception {
-        assertNotNull(userDAO.getUser("user"));
+        assertNotNull(dataAccess.getUser("user"));
 
         ClearService service = new ClearService();
         service.clearData();
 
-        assertNull(userDAO.getUser("user"), "User data should be cleared");
+        assertNull(dataAccess.getUser("user"), "User data should be cleared");
     }
 
     @Test

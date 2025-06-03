@@ -8,8 +8,6 @@ import request.CreateGameRequest;
 import result.CreateGameResult;
 
 public class CreateGameService {
-    private final GameDAO gameDAO = new GameDAO();
-    private final AuthDAO authDAO = new AuthDAO();
     private final DataAccess dataAccess;
 
     public CreateGameService() {
