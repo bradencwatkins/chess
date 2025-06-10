@@ -18,9 +18,10 @@ public class Main {
     public static Scanner scanner = new Scanner(System.in);
     public static String input = " ";
     private static int boardSize = 8;
-    private static int squareLength = 5;
-    private static int squareHeight = 2;
+    private static int squareLength = 9;
+    private static int squareHeight = 3;
     private static int borderLength = 4;
+    private static ChessGame chessGame = new ChessGame();
 
 
 
@@ -105,21 +106,21 @@ public class Main {
 
     private static void drawLetters(PrintStream out) {
         setGray(out);
-        out.print(SPACE.repeat(48));
+        out.print(SPACE.repeat(80));
         out.println("\u001b[0m");
         setGray(out);
         String[] headers = {"a", "b", "c", "d", "e", "f", "g", "h" };
         out.print(SPACE.repeat(borderLength));
         for (int i = 0; i < headers.length; i++) {
             drawLetter(out, headers[i]);
-            out.print(SPACE.repeat(2));
+            out.print(SPACE.repeat(4));
         }
         out.print(SPACE.repeat(borderLength));
         out.println("\u001b[0m");
     }
 
     private static void drawLetter(PrintStream out, String letter) {
-        int gapLength = 2;
+        int gapLength = 4;
 
         out.print(SPACE.repeat(gapLength));
         out.print(SET_BG_COLOR_LIGHT_GREY);
@@ -131,15 +132,19 @@ public class Main {
 
     public static void printBoard(PrintStream out) {
 
-
-
         for (int boardRow = 0; boardRow < boardSize; boardRow++) {
-
-
             for (int i = 0; i < squareHeight; i++) {
-                //PLACE NUMBER TO SIGNIFY ROW
                 setGray(out);
-                out.print(SPACE.repeat(borderLength));
+                if (i == 1){
+                    out.print(SPACE.repeat(borderLength - 2));
+                    out.print(SET_BG_COLOR_LIGHT_GREY);
+                    out.print(SET_TEXT_COLOR_BLACK);
+                    out.print(8 - boardRow);
+                    setGray(out);
+                    out.print(SPACE);
+                } else {
+                    out.print(SPACE.repeat(borderLength));
+                }
                 for (int boardColumn = 0; boardColumn < boardSize; boardColumn++) {
                     //ODD ROWS, ODD SQUARES (WHITE)
                     if (boardRow % 2 == 0 && boardColumn % 2 == 0) {
@@ -161,7 +166,16 @@ public class Main {
                     }
                 }
                 setGray(out);
-                out.print(SPACE.repeat(borderLength));
+                if (i == 1){
+                    out.print(SPACE.repeat(1));
+                    out.print(SET_BG_COLOR_LIGHT_GREY);
+                    out.print(SET_TEXT_COLOR_BLACK);
+                    out.print(8 - boardRow);
+                    setGray(out);
+                    out.print(SPACE.repeat(borderLength - 2));
+                } else {
+                    out.print(SPACE.repeat(borderLength));
+                }
                 out.println("\u001b[0m");
             }
         }
