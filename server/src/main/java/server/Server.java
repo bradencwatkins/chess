@@ -3,6 +3,8 @@ package server;
 import handler.*;
 import spark.*;
 
+import static java.lang.System.out;
+
 public class Server {
 
     public int run(int desiredPort) {
@@ -18,6 +20,7 @@ public class Server {
         Spark.post("/game", new CreateGameHandler());
         Spark.get("/game", new ListGameHandler());
         Spark.put("/game", new JoinGameHandler());
+        Spark.get("/game/:id", new GetGameHandler());
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();

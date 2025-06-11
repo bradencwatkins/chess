@@ -49,7 +49,6 @@ public class ChessBoard {
 
     public Collection<ChessPosition> getAllPositions(ChessGame.TeamColor team){
         Collection<ChessPosition> piecePositions = new ArrayList<>();
-
         for (int i = 0; i < 8; i++){
             for (int j = 0; j < 8; j++){
                 if (squares[i][j] != null) {

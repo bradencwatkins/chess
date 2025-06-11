@@ -1,5 +1,12 @@
 package ui;
 
+import chess.ChessPiece;
+
+import java.util.Objects;
+import java.util.SplittableRandom;
+
+import static java.lang.System.out;
+
 /**
  * This class contains constants and functions relating to ANSI Escape Sequences that are useful in the Client display
  */
@@ -51,12 +58,12 @@ public class EscapeSequences {
     public static final String SET_BG_COLOR_LIGHT_BROWN = SET_BG_COLOR + "187m";
     public static final String RESET_BG_COLOR = UNICODE_ESCAPE + "[49m";
 
-    public static final String WHITE_KING = " ♔ ";
-    public static final String WHITE_QUEEN = " ♕ ";
-    public static final String WHITE_BISHOP = " ♗ ";
-    public static final String WHITE_KNIGHT = " ♘ ";
-    public static final String WHITE_ROOK = " ♖ ";
-    public static final String WHITE_PAWN = " ♙ ";
+    public static final String WHITE_KING = "♔";
+    public static final String WHITE_QUEEN = "♕";
+    public static final String WHITE_BISHOP = "♗";
+    public static final String WHITE_KNIGHT = "♘";
+    public static final String WHITE_ROOK = "♖";
+    public static final String WHITE_PAWN = "♙";
     public static final String BLACK_KING = " ♚ ";
     public static final String BLACK_QUEEN = " ♛ ";
     public static final String BLACK_BISHOP = " ♝ ";
@@ -67,4 +74,38 @@ public class EscapeSequences {
     public static final String SPACE = " ";
 
     public static String moveCursorToLocation(int x, int y) { return UNICODE_ESCAPE + "[" + y + ";" + x + "H"; }
+
+    public String changeText(String chessPiece) {
+        String[] parts = chessPiece.split(" ");
+        String type = parts[0];
+        String color = parts[1];
+
+        if (Objects.equals(color, "WHITE")) {
+            out.print(SET_TEXT_COLOR_MAGENTA);
+        }
+        if (Objects.equals(color, "BLACK")) {
+            out.print(SET_TEXT_COLOR_BLACK);
+        }
+        if (Objects.equals(type, "ROOK")) {
+            return "R";
+        }
+        if (Objects.equals(type, "KNIGHT")) {
+            return "N";
+        }
+        if (Objects.equals(type, "BISHOP")) {
+            return "B";
+        }
+        if (Objects.equals(type, "QUEEN")) {
+            return "Q";
+        }
+        if (Objects.equals(type, "KING")) {
+            return "K";
+        }
+        if (Objects.equals(type, "PAWN")) {
+            return "P";
+        }
+
+        return EMPTY;
+    }
+
 }

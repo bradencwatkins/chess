@@ -1,10 +1,12 @@
 import ServerFacade.*;
 import chess.*;
+import ui.EscapeSequences;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static java.lang.System.out;
 import static ui.EscapeSequences.*;
 
 
@@ -21,6 +23,7 @@ public class Main {
     private static ServerFacade server = new ServerFacade("http://localhost:8080");
     private static ServerFacadeHandler serverHandler = new ServerFacadeHandler();
     private static String username = " ";
+    private static EscapeSequences escSeq = new EscapeSequences();
 
 
 
@@ -43,15 +46,15 @@ public class Main {
         String[] inputWords;
 
         do {
-            System.out.println();
-            System.out.print("\u001b[32m");
-            System.out.println("   \u001b[32mregister <\u001b[34mUSERNAME\u001b[32m> <\u001b[34mPASSWORD\u001b[32m> <\u001b[34mEMAIL\u001b[32m> - \u001b[33mto create an account");
-            System.out.println("   \u001b[32mlogin\u001b[32m <\u001b[34mUSERNAME\u001b[32m> <\u001b[34mPASSWORD\u001b[32m> - \u001b[33mto enter chess time");
-            System.out.println("   \u001b[32mquit\u001b[32m - \u001b[33mstop chess time");
-            System.out.println("   \u001b[32mhelp\u001b[32m - \u001b[33mget possible commands");
+            out.println();
+            out.print("\u001b[32m");
+            out.println("   \u001b[32mregister <\u001b[34mUSERNAME\u001b[32m> <\u001b[34mPASSWORD\u001b[32m> <\u001b[34mEMAIL\u001b[32m> - \u001b[33mto create an account");
+            out.println("   \u001b[32mlogin\u001b[32m <\u001b[34mUSERNAME\u001b[32m> <\u001b[34mPASSWORD\u001b[32m> - \u001b[33mto enter chess time");
+            out.println("   \u001b[32mquit\u001b[32m - \u001b[33mstop chess time");
+            out.println("   \u001b[32mhelp\u001b[32m - \u001b[33mget possible commands");
 
-            System.out.print("\u001b[36m");
-            System.out.print("[" + status + "] >>> ");
+            out.print("\u001b[36m");
+            out.print("[" + status + "] >>> ");
             input = scanner.nextLine();
             inputWords = input.trim().split("\\s+");
 
@@ -65,7 +68,7 @@ public class Main {
                 postLogin();
             }
             else {
-                System.out.println("You must enter USERNAME, PASSWORD, EMAIL");
+                out.println("You must enter USERNAME, PASSWORD, EMAIL");
                 preLogin();
             }
         }
@@ -99,18 +102,18 @@ public static void postLogin() {
     String[] inputWords;
 
     do {
-        System.out.println();
-        System.out.print("\u001b[32m");
-        System.out.println("   \u001b[32mcreate <\u001b[34mNAME\u001b[32m> - \u001b[33mto create a game");
-        System.out.println("   \u001b[32mlist - \u001b[33mlist games");
-        System.out.println("   \u001b[32mjoin <\u001b[34mID\u001b[32m> [\u001b[36mWHITE\u001b[32m|\u001b[30mBLACK\u001b[32m] - \u001b[33mjoin a game");
-        System.out.println("   \u001b[32mobserve <\u001b[34mID\u001b[33m> - watch a game");
-        System.out.println("   \u001b[32mlogout - \u001b[33mlogout and return to main menu");
-        System.out.println("   \u001b[32mhelp - \u001b[33mget possible commands");
-        System.out.println("   \u001b[32mquit - \u001b[33mstop chess time");
+        out.println();
+        out.print("\u001b[32m");
+        out.println("   \u001b[32mcreate <\u001b[34mNAME\u001b[32m> - \u001b[33mto create a game");
+        out.println("   \u001b[32mlist - \u001b[33mlist games");
+        out.println("   \u001b[32mjoin <\u001b[34mID\u001b[32m> [\u001b[36mWHITE\u001b[32m|\u001b[30mBLACK\u001b[32m] - \u001b[33mjoin a game");
+        out.println("   \u001b[32mobserve <\u001b[34mID\u001b[33m> - watch a game");
+        out.println("   \u001b[32mlogout - \u001b[33mlogout and return to main menu");
+        out.println("   \u001b[32mhelp - \u001b[33mget possible commands");
+        out.println("   \u001b[32mquit - \u001b[33mstop chess time");
 
-        System.out.print("\u001b[36m");
-        System.out.print("[" + status + "] >>> ");
+        out.print("\u001b[36m");
+        out.print("[" + status + "] >>> ");
         input = scanner.nextLine();
         inputWords = input.trim().split("\\s+");
     } while (inputWords.length == 0 || !validPostCommands.contains(inputWords[0].toLowerCase()));
@@ -127,20 +130,29 @@ public static void postLogin() {
         postLogin();
     }
 
+    //JOINING A GAME
     else if (inputWords[0].equalsIgnoreCase("join") && inputWords.length == 3) {
         serverHandler.joinGameHandler(inputWords);
+        chessGame = serverHandler.getGameHandler(Integer.parseInt(inputWords[1]));
+        drawLetters(out, 1);
+        printBoard(out);
+        drawLetters(out, 2);
         postLogin();
     }
 
+    //OBSERVE A GAME
     else if (inputWords[0].equalsIgnoreCase("observe")) {
-        //observe logic
+        serverHandler.observeGameHandler(inputWords);
+        postLogin();
     }
 
+    //LOGGING OUT
     else if (inputWords[0].equalsIgnoreCase("logout")) {
         serverHandler.logoutHandler();
         preLogin();
     }
 
+    //QUITTING
     else if (inputWords[0].equalsIgnoreCase("quit") || inputWords[0].equalsIgnoreCase("q")) {
         System.exit(0);
     }
@@ -205,20 +217,40 @@ public static void printBoard(PrintStream out) {
                 //ODD ROWS, ODD SQUARES (WHITE)
                 if (boardRow % 2 == 0 && boardColumn % 2 == 0) {
                     setLightBrown(out);
-                    out.print(SPACE.repeat(squareLength));
+                    if (i == 1) {
+                        printPiece(boardRow, boardColumn);
+                    }
+                    else {
+                        out.print(SPACE.repeat(squareLength));
+                    }
                 } //ODD ROWS, EVEN SQUARES (BLACK)
                 else if (boardRow % 2 == 0 && boardColumn % 2 == 1) {
                     setBrown(out);
-                    out.print(SPACE.repeat(squareLength));
+                    if (i == 1) {
+                        printPiece(boardRow, boardColumn);
+                    }
+                    else {
+                        out.print(SPACE.repeat(squareLength));
+                    }
                 }
                 //EVEN ROW, EVEN SQUARES (BLACK)
                 else if (boardRow % 2 == 1 && boardColumn % 2 == 0) {
                     setBrown(out);
-                    out.print(SPACE.repeat(squareLength));
+                    if (i == 1) {
+                        printPiece(boardRow, boardColumn);
+                    }
+                    else {
+                        out.print(SPACE.repeat(squareLength));
+                    }
                 } //EVEN ROW, ODD SQUARES (WHITE)
                 else {
                     setLightBrown(out);
-                    out.print(SPACE.repeat(squareLength));
+                    if (i == 1) {
+                        printPiece(boardRow, boardColumn);
+                    }
+                    else {
+                        out.print(SPACE.repeat(squareLength));
+                    }
                 }
             }
             setGray(out);
@@ -237,6 +269,18 @@ public static void printBoard(PrintStream out) {
         }
     }
 
+}
+
+private static void printPiece(int boardRow, int boardColumn) {
+    out.print(SPACE.repeat(squareLength / 2));
+    ChessPiece piece = chessGame.getBoard().getPiece(new ChessPosition(boardRow+1, boardColumn+1));
+    if (piece != null) {
+        String chessChar = escSeq.changeText(piece.toString());
+        out.print(chessChar);
+    } else {
+        out.print(SPACE); // Or a blank square, etc.
+    }
+    out.print(SPACE.repeat(squareLength / 2));
 }
 
 private static void setBlack(PrintStream out) {

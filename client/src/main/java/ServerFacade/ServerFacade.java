@@ -43,6 +43,10 @@ public class ServerFacade {
         return makeRequest("PUT", "/game", request);
     }
 
+    public Map<String, Object> getGameState(int gameID) throws Exception {
+        return makeRequest("GET", "/game/" + gameID, null);
+    }
+
 
     //CONNECTS SERVER FACADE TO SERVER
     private Map<String, Object> makeRequest(String method, String path, Map<String, Object> requestBody) throws Exception {

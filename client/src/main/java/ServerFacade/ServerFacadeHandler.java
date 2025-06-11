@@ -1,5 +1,8 @@
 package ServerFacade;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -122,6 +125,38 @@ public class ServerFacadeHandler {
             out.println(e.getMessage());
         } catch (Exception e) {
             out.println("Server failure");
+        }
+    }
+
+    public void observeGameHandler(String[] inputWords) {
+        try {
+            Map<String, Object> request = new HashMap<>();
+            int gameID = Integer.parseInt(inputWords[1]);
+            request.put("gameID", gameID);
+            request.put("playerColor", null);
+
+            server.joinGame(request);
+            out.println("Successfully joined game as observer");
+        } catch (ServerException e) {
+            out.println(e.getMessage());
+        } catch (Exception e) {
+            out.println("Server failure");
+        }
+    }
+
+    public ChessGame getGameHandler(int gameID) {
+        try {
+            Map<String, Object> response = server.getGameState(gameID);
+            out.println(response);
+            Gson gson = new Gson();
+            String json = gson.toJson(response);
+
+            ChessGame game = gson.fromJson(json, ChessGame.class);
+            out.println("Successfully retrieved game state");
+            return game;
+        } catch (Exception e) {
+            out.println("Failed to retrieve game state.");
+            return null;
         }
     }
 
