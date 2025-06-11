@@ -35,9 +35,6 @@ public class Main {
         preLogin();
 
         out.print(ERASE_SCREEN);
-        drawLetters(out, 1);
-        printBoard(out);
-        drawLetters(out, 2);
 
     }
 
@@ -134,9 +131,10 @@ public static void postLogin() {
     else if (inputWords[0].equalsIgnoreCase("join") && inputWords.length == 3) {
         serverHandler.joinGameHandler(inputWords);
         chessGame = serverHandler.getGameHandler(Integer.parseInt(inputWords[1]));
-        drawLetters(out, 1);
-        printBoard(out);
-        drawLetters(out, 2);
+        String teamColor = inputWords[2];
+        drawLetters(out, 1, teamColor);
+        printBoard(out, teamColor);
+        drawLetters(out, 2, teamColor);
         postLogin();
     }
 
@@ -163,7 +161,7 @@ public static void postLogin() {
 
 }
 
-private static void drawLetters(PrintStream out, int iteration) {
+private static void drawLetters(PrintStream out, int iteration, String teamColor) {
     if (iteration == 1) {
         System.out.println();
         setGray(out);
@@ -198,7 +196,7 @@ private static void drawLetter(PrintStream out, String letter) {
 }
 
 //FUNCTION THAT PRINTS THE SQUARES OF THE BOARD WITH THE PIECES IN THEM
-public static void printBoard(PrintStream out) {
+public static void printBoard(PrintStream out, String teamColor) {
     for (int boardRow = 0; boardRow < boardSize; boardRow++) {
         for (int i = 0; i < squareHeight; i++) {
             setGray(out);
@@ -207,7 +205,11 @@ public static void printBoard(PrintStream out) {
                 out.print(SET_BG_COLOR_LIGHT_GREY);
                 out.print(SET_TEXT_COLOR_BLACK);
                 out.print(SET_TEXT_BOLD);
-                out.print(8 - boardRow);
+                if (teamColor.equalsIgnoreCase("white")) {
+                    out.print(8 - boardRow);
+                } else {
+                    out.print(boardRow + 1);
+                }
                 setGray(out);
                 out.print(SPACE);
             } else {
@@ -259,7 +261,11 @@ public static void printBoard(PrintStream out) {
                 out.print(SET_BG_COLOR_LIGHT_GREY);
                 out.print(SET_TEXT_COLOR_BLACK);
                 out.print(SET_TEXT_BOLD);
-                out.print(8 - boardRow);
+                if (teamColor.equalsIgnoreCase("white")) {
+                    out.print(8 - boardRow);
+                } else {
+                    out.print(boardRow + 1);
+                }
                 setGray(out);
                 out.print(SPACE.repeat(borderLength - 2));
             } else {
