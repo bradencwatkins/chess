@@ -108,8 +108,17 @@ public class ChessBoard {
         for (int i = 0; i < 8; i++){
             squares[6][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         }
+    }
 
-
+    //REVERSES THE BOARD FOR BLACK PIECE USERS
+    public void reverseBoard() {
+        for (int row = 0; row < squares.length / 2; row++) {
+            for (int col = 0; col < squares[row].length; col++) {
+                ChessPiece temp = squares[row][col];
+                squares[row][col] = squares[7 - row][7 - col];
+                squares[7 - row][7 - col] = temp;
+            }
+        }
     }
 
     @Override

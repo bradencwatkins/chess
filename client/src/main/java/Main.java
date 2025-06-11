@@ -132,6 +132,9 @@ public static void postLogin() {
         serverHandler.joinGameHandler(inputWords);
         chessGame = serverHandler.getGameHandler(Integer.parseInt(inputWords[1]));
         String teamColor = inputWords[2];
+        if (teamColor.equalsIgnoreCase("black")){
+            chessGame.getBoard().reverseBoard();
+        }
         drawLetters(out, 1, teamColor);
         printBoard(out, teamColor);
         drawLetters(out, 2, teamColor);
@@ -172,7 +175,11 @@ private static void drawLetters(PrintStream out, int iteration, String teamColor
     String[] headers = {"a", "b", "c", "d", "e", "f", "g", "h" };
     out.print(SPACE.repeat(borderLength));
     for (int i = 0; i < headers.length; i++) {
-        drawLetter(out, headers[i]);
+        if (teamColor.equalsIgnoreCase("white")) {
+            drawLetter(out, headers[i]);
+        } else {
+            drawLetter(out, headers[7-i]);
+        }
         out.print(SPACE.repeat(4));
     }
     out.print(SPACE.repeat(borderLength));
@@ -198,76 +205,33 @@ private static void drawLetter(PrintStream out, String letter) {
 //FUNCTION THAT PRINTS THE SQUARES OF THE BOARD WITH THE PIECES IN THEM
 public static void printBoard(PrintStream out, String teamColor) {
     for (int boardRow = 0; boardRow < boardSize; boardRow++) {
+        int rank;
+        if (teamColor.equalsIgnoreCase("white")) {
+            rank = 8 - boardRow;
+        } else {
+            rank = boardRow + 1;
+        }
         for (int i = 0; i < squareHeight; i++) {
             setGray(out);
-            if (i == 1){
-                out.print(SPACE.repeat(borderLength - 2));
-                out.print(SET_BG_COLOR_LIGHT_GREY);
-                out.print(SET_TEXT_COLOR_BLACK);
-                out.print(SET_TEXT_BOLD);
-                if (teamColor.equalsIgnoreCase("white")) {
-                    out.print(8 - boardRow);
-                } else {
-                    out.print(boardRow + 1);
-                }
-                setGray(out);
-                out.print(SPACE);
-            } else {
-                out.print(SPACE.repeat(borderLength));
-            }
+            printRank(out, i, rank, 1);
+
             for (int boardColumn = 0; boardColumn < boardSize; boardColumn++) {
-                //ODD ROWS, ODD SQUARES (WHITE)
-                if (boardRow % 2 == 0 && boardColumn % 2 == 0) {
+                boolean isLight = (boardRow + boardColumn) % 2 == 0;
+                if (isLight) {
                     setLightBrown(out);
-                    if (i == 1) {
-                        printPiece(boardRow, boardColumn);
-                    }
-                    else {
-                        out.print(SPACE.repeat(squareLength));
-                    }
-                } //ODD ROWS, EVEN SQUARES (BLACK)
-                else if (boardRow % 2 == 0 && boardColumn % 2 == 1) {
+                } else {
                     setBrown(out);
-                    if (i == 1) {
-                        printPiece(boardRow, boardColumn);
-                    }
-                    else {
-                        out.print(SPACE.repeat(squareLength));
-                    }
                 }
-                //EVEN ROW, EVEN SQUARES (BLACK)
-                else if (boardRow % 2 == 1 && boardColumn % 2 == 0) {
-                    setBrown(out);
-                    if (i == 1) {
-                        printPiece(boardRow, boardColumn);
-                    }
-                    else {
-                        out.print(SPACE.repeat(squareLength));
-                    }
-                } //EVEN ROW, ODD SQUARES (WHITE)
-                else {
-                    setLightBrown(out);
-                    if (i == 1) {
-                        printPiece(boardRow, boardColumn);
-                    }
-                    else {
-                        out.print(SPACE.repeat(squareLength));
-                    }
+
+                if (i == 1) {
+                    printPiece(boardRow, boardColumn);
+                } else {
+                    out.print(SPACE.repeat(squareLength));
                 }
             }
             setGray(out);
             if (i == 1){
-                out.print(SPACE.repeat(1));
-                out.print(SET_BG_COLOR_LIGHT_GREY);
-                out.print(SET_TEXT_COLOR_BLACK);
-                out.print(SET_TEXT_BOLD);
-                if (teamColor.equalsIgnoreCase("white")) {
-                    out.print(8 - boardRow);
-                } else {
-                    out.print(boardRow + 1);
-                }
-                setGray(out);
-                out.print(SPACE.repeat(borderLength - 2));
+                printRank(out, i, rank, 2);
             } else {
                 out.print(SPACE.repeat(borderLength));
             }
@@ -284,9 +248,33 @@ private static void printPiece(int boardRow, int boardColumn) {
         String chessChar = escSeq.changeText(piece.toString());
         out.print(chessChar);
     } else {
-        out.print(SPACE); // Or a blank square, etc.
+        out.print(SPACE);
     }
     out.print(SPACE.repeat(squareLength / 2));
+}
+
+private static void printRank(PrintStream out, int i, int rank, int iteration){
+    if (i == 1){
+        if (iteration == 1) {
+            out.print(SPACE.repeat(borderLength - 2));
+        }
+        else {
+            out.print(SPACE);
+        }
+        out.print(SET_BG_COLOR_LIGHT_GREY);
+        out.print(SET_TEXT_COLOR_BLACK);
+        out.print(SET_TEXT_BOLD);
+        out.print(rank);
+        setGray(out);
+        if (iteration == 1) {
+            out.print(SPACE);
+        }
+        else {
+            out.print(SPACE.repeat(borderLength - 2));
+        }
+    } else {
+        out.print(SPACE.repeat(borderLength));
+    }
 }
 
 private static void setBlack(PrintStream out) {
