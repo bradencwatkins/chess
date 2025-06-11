@@ -137,7 +137,8 @@ public static void postLogin() {
     }
 
     else if (inputWords[0].equalsIgnoreCase("logout")) {
-        //logout logic
+        serverHandler.logoutHandler();
+        preLogin();
     }
 
     else if (inputWords[0].equalsIgnoreCase("quit") || inputWords[0].equalsIgnoreCase("q")) {

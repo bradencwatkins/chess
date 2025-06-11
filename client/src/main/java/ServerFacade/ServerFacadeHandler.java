@@ -113,4 +113,16 @@ public class ServerFacadeHandler {
         }
     }
 
+    public void logoutHandler() {
+        try {
+            server.logoutUser();
+            server.setAuthToken(null);
+            out.println("Successfully logged out");
+        } catch (ServerException e) {
+            out.println(e.getMessage());
+        } catch (Exception e) {
+            out.println("Server failure");
+        }
+    }
+
 }

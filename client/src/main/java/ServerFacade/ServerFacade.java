@@ -27,8 +27,8 @@ public class ServerFacade {
         return makeRequest("POST", "/session", request);
     }
 
-    public Map<String, Object> logoutUser(Map<String, Object> request) throws Exception {
-        return makeRequest("DELETE", "/session", request);
+    public Map<String, Object> logoutUser() throws Exception {
+        return makeRequest("DELETE", "/session", null);
     }
 
     public Map<String, Object> createGame(Map<String, Object> request) throws Exception {
