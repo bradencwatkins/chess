@@ -44,7 +44,8 @@ public class Main {
 
         out.println();
         out.print("\u001b[32m");
-        out.println("   \u001b[32mregister <\u001b[34mUSERNAME\u001b[32m> <\u001b[34mPASSWORD\u001b[32m> <\u001b[34mEMAIL\u001b[32m> - \u001b[33mto create an account");
+        out.println("   \u001b[32mregister <\u001b[34mUSERNAME\u001b[32m> <\u001b[34mPASSWORD\u001b[32m> <\u001b[34mEMAIL\u001b[32m>" +
+                " - \u001b[33mto create an account");
         out.println("   \u001b[32mlogin\u001b[32m <\u001b[34mUSERNAME\u001b[32m> <\u001b[34mPASSWORD\u001b[32m> - \u001b[33mto enter chess time");
         out.println("   \u001b[32mquit\u001b[32m - \u001b[33mstop chess time");
         out.println("   \u001b[32mtype 'help' to explain the commands");
@@ -317,19 +318,9 @@ private static void printRank(PrintStream out, int i, int rank, int iteration){
     }
 }
 
-private static void setBlack(PrintStream out) {
-    out.print(SET_BG_COLOR_BLACK);
-    out.print(SET_TEXT_COLOR_BLACK);
-}
-
 private static void setGray(PrintStream out) {
     out.print(SET_BG_COLOR_LIGHT_GREY);
     out.print(SET_TEXT_COLOR_LIGHT_GREY);
-}
-
-private static void setWhite(PrintStream out) {
-    out.print(SET_BG_COLOR_WHITE);
-    out.print(SET_TEXT_COLOR_WHITE);
 }
 
 private static void setBrown(PrintStream out) {
