@@ -1,4 +1,4 @@
-import ServerFacade.*;
+import serverfacade.*;
 import chess.*;
 import ui.EscapeSequences;
 
