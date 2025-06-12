@@ -42,6 +42,7 @@ public class EscapeSequences {
     public static final String SET_TEXT_COLOR_WHITE = SET_TEXT_COLOR + "15m";
     public static final String SET_TEXT_COLOR_BROWN = SET_TEXT_COLOR + "52m";
     public static final String SET_TEXT_COLOR_LIGHT_BROWN = SET_TEXT_COLOR + "187m";
+    public static final String SET_TEXT_COLOR_DARK_GREEN = SET_TEXT_COLOR + "22m";
     public static final String RESET_TEXT_COLOR = UNICODE_ESCAPE + "[39m";
 
     public static final String SET_BG_COLOR_BLACK = SET_BG_COLOR + "0m";
@@ -81,7 +82,7 @@ public class EscapeSequences {
         String color = parts[1];
 
         if (Objects.equals(color, "WHITE")) {
-            out.print(SET_TEXT_COLOR_MAGENTA);
+            out.print(SET_TEXT_COLOR_DARK_GREEN);
         }
         if (Objects.equals(color, "BLACK")) {
             out.print(SET_TEXT_COLOR_BLACK);

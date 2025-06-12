@@ -35,7 +35,7 @@ public class JoinGameHandler implements Route {
         }
         catch (AlreadyTakenException e) {
             res.status(403);
-            return gson.toJson(new MessageResult("Error: Player color already taken"));
+            return gson.toJson(new MessageResult("Error: " + e.getMessage()));
         }
         catch (UnauthorizedException u){
             res.status(401);
@@ -46,11 +46,11 @@ public class JoinGameHandler implements Route {
             return gson.toJson(new MessageResult("Error: Data access error"));
         } catch (RuntimeException e) {
             res.status(500);
-            return gson.toJson(new MessageResult("Internal Server Error"));
+            return gson.toJson(new MessageResult("Error: " + e.getMessage()));
         }
         catch (Exception e){
             res.status(400);
-            return gson.toJson(new MessageResult("Internal Server Error"));
+            return gson.toJson(new MessageResult("Error: " + e.getMessage()));
         }
 
 

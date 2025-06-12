@@ -28,9 +28,6 @@ public class LoginService {
         if (user == null){
             throw new UnauthorizedException("Username does not exist");
         }
-        if (user.email() == null || user.email().isBlank()){
-            throw new Exception("email does not exist");
-        }
 
         //VALIDATE PASSWORD
         if (!BCrypt.checkpw(request.password(), user.password())){

@@ -3,6 +3,7 @@ package ServerFacade;
 import chess.ChessGame;
 import com.google.gson.Gson;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,8 +11,15 @@ import static java.lang.System.out;
 import static ui.EscapeSequences.*;
 
 public class ServerFacadeHandler {
-    private static ServerFacade server = new ServerFacade("http://localhost:8080");
+    private static ServerFacade server;
 
+    public ServerFacadeHandler(ServerFacade server) {
+        this.server = server;
+    }
+
+    public void clear() throws Exception {
+        server.clear();
+    }
 
     public boolean registerHandler(String[] inputWords) {
         try {
@@ -22,13 +30,13 @@ public class ServerFacadeHandler {
 
             server.registerUser(request);
 
-            out.println("Successfully registered and logged in");
+            out.println("\u001b[36m  Successfully registered");
             return true;
         } catch (ServerException e) {
-            out.println(e.getMessage());
+            out.println("\u001b[31m  " + e.getMessage());
             return false;
         } catch (Exception e) {
-            out.println("Server failure");
+            out.println("\u001b[31m  Server failure");
             return false;
         }
     }
@@ -43,13 +51,13 @@ public class ServerFacadeHandler {
             String authToken = (String) response.get("authToken");
             server.setAuthToken(authToken);
 
-            out.println("Successfully logged in");
+            out.println("\u001b[36m  Successfully logged in");
             return true;
         } catch (ServerException e) {
-            out.println(e.getMessage());
+            out.println("\u001b[31m  " + e.getMessage());
             return false;
         } catch (Exception e) {
-            out.println("Server failure");
+            out.println("\u001b[31m  Server failure");
             return false;
         }
     }
@@ -60,11 +68,11 @@ public class ServerFacadeHandler {
             request.put("gameName", inputWords[1]);
 
             server.createGame(request);
-            out.println("Successfully created game");
+            out.println("\u001b[36m  Successfully created game");
         } catch (ServerException e) {
-            out.println(e.getMessage());
+            out.println("\u001b[31m  " + e.getMessage());
         } catch (Exception e) {
-            out.println("Server failure");
+            out.println("\u001b[31m  Server failure");
         }
     }
 
@@ -91,9 +99,9 @@ public class ServerFacadeHandler {
             }
 
         } catch (ServerException e) {
-            out.println(e.getMessage());
+            out.println("\u001b[31m  " + e.getMessage());
         } catch (Exception e) {
-            out.println("Server failure");
+            out.println("\u001b[31m  Server failure");
         }
     }
 
@@ -108,11 +116,11 @@ public class ServerFacadeHandler {
             }
 
             server.joinGame(request);
-            out.println("Successfully joined game");
+            out.println("\u001b[36m  Successfully joined game");
         } catch (ServerException e) {
-            out.println(e.getMessage());
+            out.println("\u001b[31m  " + e.getMessage());
         } catch (Exception e) {
-            out.println("Server failure");
+            out.println("\u001b[31m  Server failure");
         }
     }
 
@@ -120,11 +128,11 @@ public class ServerFacadeHandler {
         try {
             server.logoutUser();
             server.setAuthToken(null);
-            out.println("Successfully logged out");
+            out.println("\u001b[36m  Successfully logged out");
         } catch (ServerException e) {
-            out.println(e.getMessage());
+            out.println("\u001b[31m  " + e.getMessage());
         } catch (Exception e) {
-            out.println("Server failure");
+            out.println("\u001b[31m  Server failure");
         }
     }
 
@@ -136,26 +144,23 @@ public class ServerFacadeHandler {
             request.put("playerColor", null);
 
             server.joinGame(request);
-            out.println("Successfully joined game as observer");
+            out.println("\u001b[36m  Successfully joined game as observer");
         } catch (ServerException e) {
-            out.println(e.getMessage());
+            out.println("\u001b[31m  " + e.getMessage());
         } catch (Exception e) {
-            out.println("Server failure");
+            out.println("\u001b[31m  Server failure");
         }
     }
 
     public ChessGame getGameHandler(int gameID) {
         try {
             Map<String, Object> response = server.getGameState(gameID);
-            out.println(response);
             Gson gson = new Gson();
             String json = gson.toJson(response);
 
             ChessGame game = gson.fromJson(json, ChessGame.class);
-            out.println("Successfully retrieved game state");
             return game;
         } catch (Exception e) {
-            out.println("Failed to retrieve game state.");
             return null;
         }
     }

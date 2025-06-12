@@ -21,7 +21,7 @@ public class Main {
     private static int borderLength = 4;
     private static ChessGame chessGame = new ChessGame();
     private static ServerFacade server = new ServerFacade("http://localhost:8080");
-    private static ServerFacadeHandler serverHandler = new ServerFacadeHandler();
+    private static ServerFacadeHandler serverHandler = new ServerFacadeHandler(server);
     private static String username = " ";
     private static EscapeSequences escSeq = new EscapeSequences();
 
@@ -42,20 +42,17 @@ public class Main {
         var status = "LOGGED OUT";
         String[] inputWords;
 
-        do {
-            out.println();
-            out.print("\u001b[32m");
-            out.println("   \u001b[32mregister <\u001b[34mUSERNAME\u001b[32m> <\u001b[34mPASSWORD\u001b[32m> <\u001b[34mEMAIL\u001b[32m> - \u001b[33mto create an account");
-            out.println("   \u001b[32mlogin\u001b[32m <\u001b[34mUSERNAME\u001b[32m> <\u001b[34mPASSWORD\u001b[32m> - \u001b[33mto enter chess time");
-            out.println("   \u001b[32mquit\u001b[32m - \u001b[33mstop chess time");
-            out.println("   \u001b[32mhelp\u001b[32m - \u001b[33mget possible commands");
+        out.println();
+        out.print("\u001b[32m");
+        out.println("   \u001b[32mregister <\u001b[34mUSERNAME\u001b[32m> <\u001b[34mPASSWORD\u001b[32m> <\u001b[34mEMAIL\u001b[32m> - \u001b[33mto create an account");
+        out.println("   \u001b[32mlogin\u001b[32m <\u001b[34mUSERNAME\u001b[32m> <\u001b[34mPASSWORD\u001b[32m> - \u001b[33mto enter chess time");
+        out.println("   \u001b[32mquit\u001b[32m - \u001b[33mstop chess time");
+        out.println("   \u001b[32mtype 'help' to explain the commands");
 
-            out.print("\u001b[36m");
-            out.print("[" + status + "] >>> ");
-            input = scanner.nextLine();
-            inputWords = input.trim().split("\\s+");
-
-        } while (inputWords.length == 0 || !validPreCommands.contains(inputWords[0].toLowerCase()));
+        out.print("\u001b[36m");
+        out.print("[" + status + "] >>> ");
+        input = scanner.nextLine();
+        inputWords = input.trim().split("\\s+");
 
         //SEND REQUEST TO SERVER TO REGISTER
         if (inputWords[0].equalsIgnoreCase("register") && inputWords.length == 4) {
@@ -63,11 +60,12 @@ public class Main {
                 serverHandler.loginHandler(inputWords);
                 username = inputWords[1];
                 postLogin();
-            }
-            else {
-                out.println("You must enter USERNAME, PASSWORD, EMAIL");
+            } else {
                 preLogin();
             }
+        } else if (inputWords[0].equalsIgnoreCase("register") && inputWords.length != 4){
+            out.println("\u001b[31mYou must enter USERNAME, PASSWORD, EMAIL");
+            preLogin();
         }
 
         //SEND REQUEST TO SERVER FOR LOGGING IN
@@ -79,16 +77,30 @@ public class Main {
             else {
                 preLogin();
             }
+        } else if (inputWords[0].equalsIgnoreCase("login") && inputWords.length != 3){
+            out.println("\u001b[31m  You must enter USERNAME, PASSWORD");
+            preLogin();
         }
 
+        //HELP INFO
         else if (inputWords[0].equalsIgnoreCase("help")) {
-            //print help
+            out.println();
+            out.println("  \u001b[4mCOMMANDS\u001b[0m");
+            out.println("   \u001b[33mregister\u001b[32m - \u001b[31mThis is how you create an account to play." +
+                        " Enter the word 'register' followed by a space, then your username and password followed by a space, then your email");
+            out.println("   \u001b[33mlogin\u001b[32m - \u001b[31mThis is how you login to play." +
+                    " Enter the word 'login' followed by a space, then your username followed by a space, then your password");
+            out.println("   \u001b[33mquit\u001b[32m - \u001b[31menter 'quit' to exit the application.");
+            preLogin();
         }
 
+        //QUIT THAT CHESS TIME
         else if (inputWords[0].equalsIgnoreCase("quit")) {
             System.exit(0);
         }
+
         else {
+            out.println("  \u001b[31m  You must enter a valid command");
             preLogin();
         }
     }
@@ -98,26 +110,27 @@ public static void postLogin() {
     var status = username;
     String[] inputWords;
 
-    do {
-        out.println();
-        out.print("\u001b[32m");
-        out.println("   \u001b[32mcreate <\u001b[34mNAME\u001b[32m> - \u001b[33mto create a game");
-        out.println("   \u001b[32mlist - \u001b[33mlist games");
-        out.println("   \u001b[32mjoin <\u001b[34mID\u001b[32m> [\u001b[36mWHITE\u001b[32m|\u001b[30mBLACK\u001b[32m] - \u001b[33mjoin a game");
-        out.println("   \u001b[32mobserve <\u001b[34mID\u001b[33m> - watch a game");
-        out.println("   \u001b[32mlogout - \u001b[33mlogout and return to main menu");
-        out.println("   \u001b[32mhelp - \u001b[33mget possible commands");
-        out.println("   \u001b[32mquit - \u001b[33mstop chess time");
+    out.println();
+    out.print("\u001b[32m");
+    out.println("   \u001b[32mcreate <\u001b[34mNAME\u001b[32m> - \u001b[33mto create a game");
+    out.println("   \u001b[32mlist - \u001b[33mlist games");
+    out.println("   \u001b[32mjoin <\u001b[34mID\u001b[32m> [\u001b[36mWHITE\u001b[32m|\u001b[30mBLACK\u001b[32m] - \u001b[33mjoin a game");
+    out.println("   \u001b[32mobserve <\u001b[34mID\u001b[33m> - watch a game");
+    out.println("   \u001b[32mlogout - \u001b[33mlogout and return to main menu");
+    out.println("   \u001b[32mquit - \u001b[33mstop chess time");
+    out.println("   \u001b[32mtype 'help' to explain the commands");
 
-        out.print("\u001b[36m");
-        out.print("[" + status + "] >>> ");
-        input = scanner.nextLine();
-        inputWords = input.trim().split("\\s+");
-    } while (inputWords.length == 0 || !validPostCommands.contains(inputWords[0].toLowerCase()));
+    out.print("\u001b[36m");
+    out.print("[" + status + "] >>> ");
+    input = scanner.nextLine();
+    inputWords = input.trim().split("\\s+");
 
     //SEND REQUEST TO CREATE A GAME
     if (inputWords[0].equalsIgnoreCase("create") && inputWords.length == 2) {
         serverHandler.createGameHandler(inputWords);
+        postLogin();
+    } else if (inputWords[0].equalsIgnoreCase("create") && inputWords.length != 2){
+        out.println("\u001b[31m  You must enter a game name");
         postLogin();
     }
 
@@ -129,28 +142,55 @@ public static void postLogin() {
 
     //JOINING A GAME
     else if (inputWords[0].equalsIgnoreCase("join") && inputWords.length == 3) {
-        serverHandler.joinGameHandler(inputWords);
-        chessGame = serverHandler.getGameHandler(Integer.parseInt(inputWords[1]));
-        String teamColor = inputWords[2];
-        if (teamColor.equalsIgnoreCase("black")){
-            chessGame.getBoard().reverseBoard();
+        if (inputWords[2].equalsIgnoreCase("white") || inputWords[2].equalsIgnoreCase("black")){
+            serverHandler.joinGameHandler(inputWords);
+            chessGame = serverHandler.getGameHandler(Integer.parseInt(inputWords[1]));
+            if (chessGame == null) {
+                postLogin();
+            }
+            String teamColor = inputWords[2];
+            chessGame.getBoard().flipBoardVerticalAxis();
+            if (teamColor.equalsIgnoreCase("black")) {
+                chessGame.getBoard().reverseBoard();
+            }
+            drawLetters(out, 1, teamColor);
+            printBoard(out, teamColor);
+            drawLetters(out, 2, teamColor);
+            postLogin();
+        } else {
+            out.println("\u001b[31m  You must enter WHITE or BLACK");
+            postLogin();
         }
-        drawLetters(out, 1, teamColor);
-        printBoard(out, teamColor);
-        drawLetters(out, 2, teamColor);
+    } else if (inputWords[0].equalsIgnoreCase("join") && inputWords.length != 3){
+        out.println("\u001b[31m  You must enter ID, COLOR");
         postLogin();
     }
-
     //OBSERVE A GAME
-    else if (inputWords[0].equalsIgnoreCase("observe")) {
+    else if (inputWords[0].equalsIgnoreCase("observe") && inputWords.length == 2) {
         serverHandler.observeGameHandler(inputWords);
         postLogin();
+    } else if (inputWords[0].equalsIgnoreCase("observe") && inputWords.length != 2){
+        out.println("\u001b[31m  You must enter a game ID");
+        postLogin();
     }
-
     //LOGGING OUT
     else if (inputWords[0].equalsIgnoreCase("logout")) {
         serverHandler.logoutHandler();
         preLogin();
+    }
+    //HELP STUFF
+    else if (inputWords[0].equalsIgnoreCase("help")) {
+        out.println();
+        out.println("  \u001b[4mCOMMANDS\u001b[0m");
+        out.println("   \u001b[33mlist\u001b[32m - \u001b[31mtype 'list' to list all current games");
+        out.println("   \u001b[33mjoin\u001b[32m - \u001b[31mThis is how you join a game." +
+                " Enter the word 'join' followed by a space, then game ID that you would like to join (from the listed games), " +
+                " followed by the color you would like to play as (WHITE or BLACK)");
+        out.println("   \u001b[33mobserve\u001b[32m - \u001b[31mThis is how you observe a game." +
+                " Enter the word 'observe' followed by a space, then the game ID for the game you would like to watch (from the listed games)");
+        out.println("   \u001b[33mlogout\u001b[32m - \u001b[31mtype 'logout' to logout and return to the main menu");
+        out.println("   \u001b[33mquit\u001b[32m - \u001b[31menter 'quit' to exit the application.");
+        postLogin();
     }
 
     //QUITTING
@@ -159,9 +199,9 @@ public static void postLogin() {
     }
 
     else {
+        out.println("  \u001b[31m  You must enter a valid command");
         postLogin();
     }
-
 }
 
 private static void drawLetters(PrintStream out, int iteration, String teamColor) {
@@ -224,7 +264,7 @@ public static void printBoard(PrintStream out, String teamColor) {
                 }
 
                 if (i == 1) {
-                    printPiece(boardRow, boardColumn);
+                    printPiece(7 - boardRow, 7 - boardColumn);
                 } else {
                     out.print(SPACE.repeat(squareLength));
                 }

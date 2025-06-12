@@ -47,6 +47,10 @@ public class ServerFacade {
         return makeRequest("GET", "/game/" + gameID, null);
     }
 
+    public void clear() throws Exception {
+        makeRequest("DELETE", "/db", null);
+    }
+
 
     //CONNECTS SERVER FACADE TO SERVER
     private Map<String, Object> makeRequest(String method, String path, Map<String, Object> requestBody) throws Exception {

@@ -110,6 +110,18 @@ public class ChessBoard {
         }
     }
 
+    //FLIPS THE BOARD ON VERTICAL AXIS
+    public void flipBoardVerticalAxis() {
+        for (int row = 0; row < squares.length; row++) {
+            for (int col = 0; col < squares[row].length / 2; col++) {
+                ChessPiece temp = squares[row][col];
+                squares[row][col] = squares[row][7 - col];
+                squares[row][7 - col] = temp;
+            }
+        }
+    }
+
+
     //REVERSES THE BOARD FOR BLACK PIECE USERS
     public void reverseBoard() {
         for (int row = 0; row < squares.length / 2; row++) {

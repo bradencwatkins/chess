@@ -32,7 +32,7 @@ public class LoginHandler implements Route {
         }
         catch (UnauthorizedException u){
             res.status(401);
-            return gson.toJson(new MessageResult("Error: Username doesn't exist"));
+            return gson.toJson(new MessageResult("Error: " + u.getMessage()));
         }
         catch (DataAccessException e){
             res.status(500);
@@ -40,7 +40,7 @@ public class LoginHandler implements Route {
         }
         catch (Exception e){
             res.status(500);
-            return gson.toJson(new MessageResult("Error: bad request"));
+            return gson.toJson(new MessageResult("Error: " + e.getMessage()));
         }
 
     }
