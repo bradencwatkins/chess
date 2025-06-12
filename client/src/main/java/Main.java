@@ -168,7 +168,11 @@ public static void postLogin() {
     }
     //OBSERVE A GAME
     else if (inputWords[0].equalsIgnoreCase("observe") && inputWords.length == 2) {
-        serverHandler.observeGameHandler(inputWords);
+        //serverHandler.observeGameHandler(inputWords);
+        chessGame.getBoard().flipBoardVerticalAxis();
+        drawLetters(out, 1, "white");
+        printBoard(out, "white");
+        drawLetters(out, 2, "white");
         postLogin();
     } else if (inputWords[0].equalsIgnoreCase("observe") && inputWords.length != 2){
         out.println("\u001b[31m  You must enter a game ID");

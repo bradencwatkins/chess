@@ -114,7 +114,6 @@ public class ServerFacadeTests {
         handler.loginHandler(new String[]{"login", "user9", "pass9"});
         handler.createGameHandler(new String[]{"create", "GettableGame"});
 
-        // Assume gameID is 1
         handler.joinGameHandler(new String[]{"join", "1", "white"});
         ChessGame game = handler.getGameHandler(1);
         Assertions.assertNotNull(game, "Should retrieve game state successfully");

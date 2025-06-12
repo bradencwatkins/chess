@@ -85,14 +85,13 @@ public class ServerFacadeHandler {
 
             if (gamesObject instanceof Iterable<?> games) {
                 out.println("Games:");
+                int displayID = 1;
                 for (Object gameObject : games){
                     if (gameObject instanceof Map<?, ?> game) {
-                        Object idObj = game.get("gameID");
-                        int id = (idObj instanceof Number) ? ((Number) idObj).intValue() : -1;
                         Object name = game.get("gameName");
                         Object whiteUsername = game.get("whiteUsername");
                         Object blackUsername = game.get("blackUsername");
-                        out.printf("   -%s | ID: %d | White Player: %s | Black Player: %s%n", name, id, whiteUsername, blackUsername);
+                        out.printf("   -%s | ID: %d | White Player: %s | Black Player: %s%n", name, displayID++, whiteUsername, blackUsername);
                     }
                 }
             }
