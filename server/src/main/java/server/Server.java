@@ -13,7 +13,7 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        // Register your endpoints and handle exceptions here.
+        Spark.webSocket("/ws", new WebSocketHandler());
         Spark.post("/user", new RegisterHandler());
         Spark.delete("/db", new ClearHandler());
         Spark.post("/session", new LoginHandler());
@@ -22,7 +22,7 @@ public class Server {
         Spark.get("/game", new ListGameHandler());
         Spark.put("/game", new JoinGameHandler());
         Spark.get("/game/:id", new GetGameHandler());
-        Spark.webSocket("/ws", new WebSocketHandler());
+
 
         Spark.init();
 
