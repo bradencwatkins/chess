@@ -1,3 +1,6 @@
+import model.AuthData;
+import model.UserData;
+
 import serverfacade.*;
 import chess.*;
 import ui.EscapeSequences;
@@ -34,6 +37,7 @@ public class Main {
     private static String teamColor = "";
     private static int currGameID = 0;
     private static final String[] headers = {"a", "b", "c", "d", "e", "f", "g", "h" };
+    private static WebSocketClient client = null;
 
 
 
@@ -162,7 +166,10 @@ public class Main {
                 }
                 teamColor = inputWords[2];
                 String serverUrl = "http://localhost:8080";
-                WebSocketClient client = new WebSocketClient(serverUrl, handler);
+                if (client != null && client.isOpen()) {
+                    client.close(); // Close the old client before making a new one
+                }
+                client = new WebSocketClient(serverUrl, handler);
                 UserGameCommand connectCommand = new UserGameCommand(
                         UserGameCommand.CommandType.CONNECT, username, currGameID
                 );
@@ -269,6 +276,14 @@ public class Main {
             //redraw logic with highlighted squares
         } else if (inputWords[0].equalsIgnoreCase("highlight") && inputWords.length != 2){
             out.println("\u001b[31m  You must enter a square");
+            gameMenu(client);
+        }
+
+        else if (inputWords[0].equalsIgnoreCase("move") && inputWords.length == 3) {
+
+
+        } else if (inputWords[0].equalsIgnoreCase("move") && inputWords.length != 3) {
+            out.println("\u001b[31m  You must enter two squares");
             gameMenu(client);
         }
 

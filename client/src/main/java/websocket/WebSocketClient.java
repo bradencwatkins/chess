@@ -1,6 +1,8 @@
 package websocket;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import websocket.messages.ServerMessage;
 import websocket.commands.UserGameCommand;
 import websocket.NotificationHandler;
@@ -22,7 +24,6 @@ public class WebSocketClient {
         try {
             URI uri = new URI(serverUrl.replace("http", "ws") + "/ws");
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            System.out.println("server: " + uri);
             container.connectToServer(this, uri);
         } catch (Exception e) {
             e.printStackTrace();
@@ -33,16 +34,16 @@ public class WebSocketClient {
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
         this.session = session;
-        this.session.addMessageHandler(String.class, message -> {
-            ServerMessage msg = gson.fromJson(message, ServerMessage.class);
-            handler.notify(msg);
-        });
     }
 
     @OnMessage
     public void onMessage(String message) {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
         handler.notify(serverMessage);
+        JsonObject json = JsonParser.parseString(message).getAsJsonObject();
+        if (json.has("message")) {
+            System.out.println("Notification: " + json.get("message").getAsString());
+        }
     }
 
     @OnError
@@ -62,6 +63,10 @@ public class WebSocketClient {
         } catch (IOException e) {
             throw new RuntimeException("Failed to send command: " + e.getMessage());
         }
+    }
+
+    public boolean isOpen() {
+        return session != null && session.isOpen();
     }
 
     public void close() {
