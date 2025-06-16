@@ -459,7 +459,15 @@ public class Main {
             } else if (message instanceof ErrorMessage) {
                 System.err.println("Error: " + ((ErrorMessage) message).getError());
             } else if (message instanceof LoadGameMessage) {
-                // TODO: update the board state
+                LoadGameMessage loadGameMessage = (LoadGameMessage) message;
+                chessGame = loadGameMessage.getGame();
+                chessGame.getBoard().flipBoardVerticalAxis();
+                if (teamColor.equalsIgnoreCase("black")) {
+                    chessGame.getBoard().reverseBoard();
+                }
+                drawLetters(System.out, 1, teamColor);
+                printBoard(System.out, teamColor, null);
+                drawLetters(System.out, 2, teamColor);
             }
         }
     };

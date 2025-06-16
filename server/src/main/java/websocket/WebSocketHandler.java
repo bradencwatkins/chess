@@ -4,6 +4,7 @@ package websocket;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.MySqlDataAccess;
@@ -19,6 +20,8 @@ import org.eclipse.jetty.websocket.api.annotations.*;
 import service.GetGameService;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -56,17 +59,35 @@ public class WebSocketHandler {
             GameData gameData = dataAccess.getGame(command.getGameID());
             ChessGame game = gameData.game();
             MakeMoveCommand moveCommand = (MakeMoveCommand) command;
+            //GET "FROM" POSITION
             String from = moveCommand.getFrom();
-            String letter = String.valueOf(from.charAt(0));
-            String number = String.valueOf(from.charAt(1));
-            int col = java.util.Arrays.asList(headers).indexOf(letter) + 1;
-            int row = Integer.parseInt(number);
+            String fromLetter = String.valueOf(from.charAt(0));
+            String fromNumber = String.valueOf(from.charAt(1));
+            int col = java.util.Arrays.asList(headers).indexOf(fromLetter) + 1;
+            int row = Integer.parseInt(fromNumber);
             ChessPosition fromPos = new ChessPosition(row, col);
-            Collection<ChessMove> validMoves = game.validMoves(fromPos);
+            //GET "TO" POSITION
+            String to = moveCommand.getTo();
+            String toLetter = String.valueOf(to.charAt(0));
+            String toNumber = String.valueOf(to.charAt(1));
+            col = java.util.Arrays.asList(headers).indexOf(toLetter) + 1;
+            row = Integer.parseInt(toNumber);
+            ChessPosition toPos = new ChessPosition(row, col);
+            ChessMove move = new ChessMove(fromPos, toPos, null);
+            try {
+                game.makeMove(move);
+                //dataAccess.updateGame(color, faysdfa);
+
+                ServerMessage update = new LoadGameMessage(game);
+                connections.broadcast(command.getGameID(), update);
+            } catch (InvalidMoveException e) {
+                ServerMessage error = new ErrorMessage("Illegal Move");
+                connections.broadcast(command.getGameID(), error);
+            }
 
 
-            connections.broadcast(gameID, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION));
-                  //  authToken + " made a move"));
+            String notificationText = dataAccess.getUsernameByToken(username + " made a move");
+            connections.broadcast(command.getGameID(), new NotificationMessage(notificationText));
         }
         else if (command.getCommandType() == UserGameCommand.CommandType.LEAVE){
             connections.remove(gameID, authToken);

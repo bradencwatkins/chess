@@ -3,6 +3,8 @@ package websocket;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 import websocket.commands.UserGameCommand;
 import websocket.NotificationHandler;
@@ -39,10 +41,15 @@ public class WebSocketClient {
     @OnMessage
     public void onMessage(String message) {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
-        handler.notify(serverMessage);
-        JsonObject json = JsonParser.parseString(message).getAsJsonObject();
-        if (json.has("message")) {
-            System.out.println("Notification: " + json.get("message").getAsString());
+        //handler.notify(serverMessage);
+        ServerMessage base = gson.fromJson(message, ServerMessage.class);
+
+        if (base.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+            LoadGameMessage load = gson.fromJson(message, LoadGameMessage.class);
+            handler.notify(load);
+        } else if (base.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+            NotificationMessage note = gson.fromJson(message, NotificationMessage.class);
+            System.out.println(note.getMessage());
         }
     }
 
