@@ -6,6 +6,8 @@ import chess.ChessMove;
 import chess.ChessPosition;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import dataaccess.DataAccess;
 import dataaccess.MySqlDataAccess;
 import model.AuthData;
@@ -42,7 +44,15 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
-        UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+        JsonObject obj = JsonParser.parseString(message).getAsJsonObject();
+        String type = obj.get("commandType").getAsString();
+
+        UserGameCommand command;
+        if ("MAKE_MOVE".equals(type)) {
+            command = gson.fromJson(obj, MakeMoveCommand.class);
+        } else {
+            command = gson.fromJson(obj, UserGameCommand.class);
+        }
         String authToken = command.getAuthToken();
         DataAccess dataAccess = new MySqlDataAccess();
         String username = dataAccess.getUsernameByToken(authToken);
@@ -57,27 +67,21 @@ public class WebSocketHandler {
         }
         else if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE){
             GameData gameData = dataAccess.getGame(command.getGameID());
+            if (gameData == null) {
+                ServerMessage error = new ErrorMessage("Game not found.");
+                connections.broadcast(command.getGameID(), error);
+                return;
+            }
             ChessGame game = gameData.game();
             MakeMoveCommand moveCommand = (MakeMoveCommand) command;
-            //GET "FROM" POSITION
-            String from = moveCommand.getFrom();
-            String fromLetter = String.valueOf(from.charAt(0));
-            String fromNumber = String.valueOf(from.charAt(1));
-            int col = java.util.Arrays.asList(headers).indexOf(fromLetter) + 1;
-            int row = Integer.parseInt(fromNumber);
-            ChessPosition fromPos = new ChessPosition(row, col);
-            //GET "TO" POSITION
-            String to = moveCommand.getTo();
-            String toLetter = String.valueOf(to.charAt(0));
-            String toNumber = String.valueOf(to.charAt(1));
-            col = java.util.Arrays.asList(headers).indexOf(toLetter) + 1;
-            row = Integer.parseInt(toNumber);
-            ChessPosition toPos = new ChessPosition(row, col);
-            ChessMove move = new ChessMove(fromPos, toPos, null);
+            ChessMove move = moveCommand.getMove();
+
             try {
                 game.makeMove(move);
                 //dataAccess.updateGame(color, faysdfa);
 
+                String notificationText = username + " made a move";
+                connections.broadcast(command.getGameID(), new NotificationMessage(notificationText));
                 ServerMessage update = new LoadGameMessage(game);
                 connections.broadcast(command.getGameID(), update);
             } catch (InvalidMoveException e) {

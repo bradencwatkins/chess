@@ -50,6 +50,7 @@ public class ServerFacadeHandler {
             String authToken = (String) response.get("authToken");
             server.setAuthToken(authToken);
 
+            ClientSession.authToken = authToken;
             out.println("\u001b[36m  Successfully logged in");
             return true;
         } catch (ServerException e) {

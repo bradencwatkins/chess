@@ -6,6 +6,7 @@ import chess.*;
 import ui.EscapeSequences;
 import websocket.NotificationHandler;
 import websocket.WebSocketClient;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -38,6 +39,7 @@ public class Main {
     private static int currGameID = 0;
     private static final String[] headers = {"a", "b", "c", "d", "e", "f", "g", "h" };
     private static WebSocketClient client = null;
+    private static String authToken = " ";
 
 
 
@@ -74,6 +76,7 @@ public class Main {
             if (serverHandler.registerHandler(inputWords)) {
                 serverHandler.loginHandler(inputWords);
                 username = inputWords[1];
+                authToken = ClientSession.authToken;
                 postLogin();
             } else {
                 preLogin();
@@ -87,6 +90,7 @@ public class Main {
         else if (inputWords[0].equalsIgnoreCase("login") && inputWords.length == 3) {
             if (serverHandler.loginHandler(inputWords)) {
                 username = inputWords[1];
+                authToken = ClientSession.authToken;
                 postLogin();
             }
             else {
@@ -167,11 +171,11 @@ public class Main {
                 teamColor = inputWords[2];
                 String serverUrl = "http://localhost:8080";
                 if (client != null && client.isOpen()) {
-                    client.close(); // Close the old client before making a new one
+                    client.close();
                 }
                 client = new WebSocketClient(serverUrl, handler);
                 UserGameCommand connectCommand = new UserGameCommand(
-                        UserGameCommand.CommandType.CONNECT, username, currGameID
+                        UserGameCommand.CommandType.CONNECT, authToken, currGameID
                 );
                 client.send(connectCommand);
                 chessGame.getBoard().flipBoardVerticalAxis();
@@ -278,10 +282,17 @@ public class Main {
             out.println("\u001b[31m  You must enter a square");
             gameMenu(client);
         }
-
+        //MAKING A MOVE
         else if (inputWords[0].equalsIgnoreCase("move") && inputWords.length == 3) {
+            String fromRaw = inputWords[1];
+            String toRaw = inputWords[2];
+            ChessPosition from = convertChessMove(fromRaw);
+            ChessPosition to = convertChessMove(toRaw);
+            ChessMove move = new ChessMove(from, to, null);
+            MakeMoveCommand moveCommand = new MakeMoveCommand(authToken, currGameID, move);
+            client.send(moveCommand);
 
-
+            gameMenu(client);
         } else if (inputWords[0].equalsIgnoreCase("move") && inputWords.length != 3) {
             out.println("\u001b[31m  You must enter two squares");
             gameMenu(client);
@@ -438,17 +449,22 @@ public class Main {
     }
 
     private static void highlightSquare(String position, Set<ChessPosition> highlightSquares){
-        String letter = String.valueOf(position.charAt(0));
-        String number = String.valueOf(position.charAt(1));
-        int col = java.util.Arrays.asList(headers).indexOf(letter) + 1;
-        int row = Integer.parseInt(number);
-        ChessPosition piecePosition = new ChessPosition(row, col);
+        ChessPosition piecePosition = convertChessMove(position);
         ChessPiece piece = chessGame.getBoard().getPiece(piecePosition);
         if (piece != null){
             for (ChessMove move : piece.pieceMoves(chessGame.getBoard(), piecePosition)) {
                 highlightSquares.add(move.getEndPosition());
             }
         }
+    }
+
+    private static ChessPosition convertChessMove(String position) {
+        String letter = String.valueOf(position.charAt(0));
+        String number = String.valueOf(position.charAt(1));
+        int col = java.util.Arrays.asList(headers).indexOf(letter) + 1;
+        int row = Integer.parseInt(number);
+        ChessPosition piecePosition = new ChessPosition(row, col);
+        return piecePosition;
     }
 
     static NotificationHandler handler = new NotificationHandler() {
