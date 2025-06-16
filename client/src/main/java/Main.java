@@ -1,6 +1,13 @@
 import serverfacade.*;
 import chess.*;
 import ui.EscapeSequences;
+import websocket.NotificationHandler;
+import websocket.WebSocketClient;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -154,6 +161,12 @@ public class Main {
                     postLogin();
                 }
                 teamColor = inputWords[2];
+                String serverUrl = "http://localhost:8080";
+                WebSocketClient client = new WebSocketClient(serverUrl, handler);
+                UserGameCommand connectCommand = new UserGameCommand(
+                        UserGameCommand.CommandType.CONNECT, username, currGameID
+                );
+                client.send(connectCommand);
                 chessGame.getBoard().flipBoardVerticalAxis();
                 if (teamColor.equalsIgnoreCase("black")) {
                     chessGame.getBoard().reverseBoard();
@@ -161,7 +174,7 @@ public class Main {
                 drawLetters(out, 1, teamColor);
                 printBoard(out, teamColor, null);
                 drawLetters(out, 2, teamColor);
-                gameMenu();
+                gameMenu(client);
                 postLogin();
             } else {
                 out.println("\u001b[31m  You must enter WHITE or BLACK");
@@ -214,7 +227,7 @@ public class Main {
         }
     }
 
-    public static void gameMenu() {
+    public static void gameMenu(WebSocketClient client) {
         var status = username;
         String[] inputWords;
 
@@ -238,7 +251,7 @@ public class Main {
             drawLetters(out, 1, teamColor);
             printBoard(out, teamColor, null);
             drawLetters(out, 2, teamColor);
-            gameMenu();
+            gameMenu(null);
         }
 
 
@@ -252,11 +265,11 @@ public class Main {
             drawLetters(out, 1, teamColor);
             printBoard(out, teamColor, position);
             drawLetters(out, 2, teamColor);
-            gameMenu();
+            gameMenu(client);
             //redraw logic with highlighted squares
         } else if (inputWords[0].equalsIgnoreCase("highlight") && inputWords.length != 2){
             out.println("\u001b[31m  You must enter a square");
-            gameMenu();
+            gameMenu(client);
         }
 
 
@@ -272,11 +285,11 @@ public class Main {
                     " then the position of the piece you would like to see all moves for. The possible moves that piece can make will be highlighted.");
             out.println("   \u001b[33mleave\u001b[32m - \u001b[31mtype 'leave' to leave the game and return to the menu. It does not end the game.");
             out.println("   \u001b[33mresign\u001b[32m - \u001b[31menter 'resign' to forfeit the current game. It does not make you leave the game.");
-            gameMenu();
+            gameMenu(client);
         }
         else {
             out.println("  \u001b[31m  You must enter a valid command");
-            gameMenu();
+            gameMenu(client);
         }
 
     }
@@ -422,6 +435,19 @@ public class Main {
             }
         }
     }
+
+    static NotificationHandler handler = new NotificationHandler() {
+        @Override
+        public void notify(ServerMessage message) {
+            if (message instanceof NotificationMessage) {
+                System.out.println(((NotificationMessage) message).getMessage());
+            } else if (message instanceof ErrorMessage) {
+                System.err.println("Error: " + ((ErrorMessage) message).getError());
+            } else if (message instanceof LoadGameMessage) {
+                // TODO: update the board state
+            }
+        }
+    };
 
     private static void setGray(PrintStream out) {
         out.print(SET_BG_COLOR_LIGHT_GREY);

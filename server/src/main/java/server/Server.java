@@ -2,10 +2,17 @@ package server;
 
 import handler.*;
 import spark.*;
+import websocket.WebSocketHandler;
 
 import static java.lang.System.out;
 
 public class Server {
+    private final WebSocketHandler webSocketHandler;
+
+    public Server() {
+        webSocketHandler = new WebSocketHandler();
+    }
+
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -21,8 +28,8 @@ public class Server {
         Spark.get("/game", new ListGameHandler());
         Spark.put("/game", new JoinGameHandler());
         Spark.get("/game/:id", new GetGameHandler());
+        Spark.webSocket("/ws", WebSocketHandler.class);
 
-        //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 
         Spark.awaitInitialization();
