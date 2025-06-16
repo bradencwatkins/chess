@@ -29,12 +29,16 @@ import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @WebSocket
 public class WebSocketHandler {
     private final Gson gson = new Gson();
     private final ConnectionManager connections = new ConnectionManager();
     private static final String[] headers = {"a", "b", "c", "d", "e", "f", "g", "h" };
+    private final Set<Integer> resignedGames = new HashSet<>();
+
 
 
     @OnWebSocketConnect
@@ -56,16 +60,39 @@ public class WebSocketHandler {
         String authToken = command.getAuthToken();
         DataAccess dataAccess = new MySqlDataAccess();
         String username = dataAccess.getUsernameByToken(authToken);
+        if (username == null) {
+            session.getRemote().sendString(gson.toJson(new ErrorMessage("Invalid auth token")));
+            return;
+        }
         int gameID = command.getGameID();
 
 
         if (command.getCommandType() == UserGameCommand.CommandType.CONNECT){
             connections.add(gameID, authToken, session);
-            String customText = username + " joined game " + gameID;
+            GameData gameData = dataAccess.getGame(gameID);
+            if (gameData == null) {
+                connections.send(gameID, authToken, new ErrorMessage("Game not found."));
+                return;
+            }
+            String role;
+            if (username.equals(gameData.whiteUsername())) {
+                role = "White Player";
+            } else if (username.equals(gameData.blackUsername())) {
+                role = "Black Player";
+            } else {
+                role = "Observer";
+            }
+
+            String customText = username + " joined game " + gameID + " as " + role;
             NotificationMessage notification = new NotificationMessage(customText);
-            connections.broadcast(gameID, notification);
+            connections.broadcastExcept(gameID, authToken, notification);  // 👈 NEW
+            connections.send(gameID, authToken, new LoadGameMessage(gameData.game()));
         }
         else if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE){
+            if (resignedGames.contains(gameID)) {
+                connections.send(gameID, authToken, new ErrorMessage("Game is over."));
+                return;
+            }
             GameData gameData = dataAccess.getGame(command.getGameID());
             if (gameData == null) {
                 ServerMessage error = new ErrorMessage("Game not found.");
@@ -96,9 +123,22 @@ public class WebSocketHandler {
 
                 connections.broadcast(command.getGameID(), new NotificationMessage(username + " made a move"));
                 connections.broadcast(command.getGameID(), new LoadGameMessage(game));
+
+                ChessGame.TeamColor nextToMove = game.getTeamTurn();
+
+                if (game.isInCheckmate(nextToMove)) {
+                    String winner = nextToMove == ChessGame.TeamColor.WHITE ? gameData.blackUsername() : gameData.whiteUsername();
+                    String loser = nextToMove == ChessGame.TeamColor.WHITE ? gameData.whiteUsername() : gameData.blackUsername();
+                    connections.broadcast(gameID, new NotificationMessage(loser + " is in checkmate. " + winner + " wins!"));
+                    resignedGames.add(gameID);
+                } else if (game.isInCheck(nextToMove)) {
+                    String inCheckPlayer = nextToMove == ChessGame.TeamColor.WHITE ? gameData.whiteUsername() : gameData.blackUsername();
+                    connections.broadcast(gameID, new NotificationMessage(inCheckPlayer + " is in check!"));
+                }
             } catch (InvalidMoveException e) {
                 ServerMessage error = new ErrorMessage("Illegal Move");
-                connections.broadcast(command.getGameID(), error);
+                connections.send(gameID, authToken, error);
+                return;
             }
 
 
@@ -107,13 +147,13 @@ public class WebSocketHandler {
         }
         else if (command.getCommandType() == UserGameCommand.CommandType.LEAVE){
             connections.remove(gameID, authToken);
-            connections.broadcast(gameID, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION));
-                   // authToken + " left the game"));
+            connections.broadcast(gameID, new NotificationMessage(username + " has left the game"));
         }
         else if (command.getCommandType() == UserGameCommand.CommandType.RESIGN){
-            connections.broadcast(gameID, new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION));
-            //        authToken + " resigned"));
+            connections.broadcast(gameID, new NotificationMessage(username + " has resigned AND LOST HAHAA"));
+            handleResignCommand(username, gameID, authToken);
         }
+
     }
 
     @OnWebSocketClose
@@ -121,5 +161,36 @@ public class WebSocketHandler {
         System.out.println("Websocket closed: " + reason);
     }
 
+    private void handleResignCommand(String username, int gameID, String authToken) {
+        try {
+            DataAccess dataAccess = new MySqlDataAccess();
+            GameData game = dataAccess.getGame(gameID);
+            if (game == null) {
+                connections.send(gameID, authToken, new ErrorMessage("Game not found."));
+                return;
+            }
+
+            if (!username.equals(game.whiteUsername()) && !username.equals(game.blackUsername())) {
+                connections.send(gameID, authToken, new ErrorMessage("You're not a player in this game."));
+                return;
+            }
+
+            if (resignedGames.contains(gameID)) {
+                connections.send(gameID, authToken, new ErrorMessage("Game already resigned."));
+                return;
+            }
+
+            resignedGames.add(gameID);
+
+            String winner = username.equals(game.whiteUsername()) ? game.blackUsername() : game.whiteUsername();
+            connections.broadcast(gameID, new NotificationMessage(username + " has resigned. " + winner + " wins!"));
+        } catch (Exception e) {
+            try {
+                connections.send(gameID, authToken, new ErrorMessage("Resign failed: " + e.getMessage()));
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
 
 }

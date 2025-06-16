@@ -49,6 +49,18 @@ public class ConnectionManager {
             }
         }
     }
+    public void broadcastExcept(int gameID, String excludedAuthToken, ServerMessage message) throws IOException {
+        var sessions = gameConnections.get(gameID);
+        if (sessions != null) {
+            for (var entry : sessions.entrySet()) {
+                String authToken = entry.getKey();
+                Session session = entry.getValue();
+                if (!authToken.equals(excludedAuthToken) && session.isOpen()) {
+                    session.getRemote().sendString(new Gson().toJson(message));
+                }
+            }
+        }
+    }
 
     public void send(int gameId, String authToken, ServerMessage message) throws IOException {
         Map<String, Session> gameMap = gameConnections.get(gameId);

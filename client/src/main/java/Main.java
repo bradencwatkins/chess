@@ -40,6 +40,7 @@ public class Main {
     private static final String[] headers = {"a", "b", "c", "d", "e", "f", "g", "h" };
     private static WebSocketClient client = null;
     private static String authToken = " ";
+    private static boolean joinedAsPlayer;
 
 
 
@@ -175,8 +176,7 @@ public class Main {
                 }
                 client = new WebSocketClient(serverUrl, handler);
                 UserGameCommand connectCommand = new UserGameCommand(
-                        UserGameCommand.CommandType.CONNECT, authToken, currGameID
-                );
+                        UserGameCommand.CommandType.CONNECT, authToken, currGameID);
                 client.send(connectCommand);
                 chessGame.getBoard().flipBoardVerticalAxis();
                 if (teamColor.equalsIgnoreCase("black")) {
@@ -185,6 +185,7 @@ public class Main {
                 drawLetters(out, 1, teamColor);
                 printBoard(out, teamColor, null);
                 drawLetters(out, 2, teamColor);
+                joinedAsPlayer = true;
                 gameMenu(client);
                 postLogin();
             } else {
@@ -197,12 +198,34 @@ public class Main {
         }
         //OBSERVE A GAME
         else if (inputWords[0].equalsIgnoreCase("observe") && inputWords.length == 2) {
-            //serverHandler.observeGameHandler(inputWords);
-            chessGame.getBoard().flipBoardVerticalAxis();
-            drawLetters(out, 1, "white");
-            printBoard(out, "white", null);
-            drawLetters(out, 2, "white");
-            postLogin();
+            try {
+                currGameID = Integer.parseInt(inputWords[1]);
+                chessGame = serverHandler.getGameHandler(currGameID);
+                if (chessGame == null) {
+                    out.println("\u001b[31m  Game not found");
+                    postLogin();
+                    return;
+                }
+                if (client != null && client.isOpen()) {
+                    client.close();
+                }
+                String serverUrl = "http://localhost:8080";
+                client = new WebSocketClient(serverUrl, handler);
+
+                UserGameCommand connectCommand = new UserGameCommand(
+                        UserGameCommand.CommandType.CONNECT, authToken, currGameID);
+                client.send(connectCommand);
+
+                chessGame.getBoard().flipBoardVerticalAxis();
+                drawLetters(out, 1, "white");
+                printBoard(out, "white", null);
+                drawLetters(out, 2, "white");
+                joinedAsPlayer = false;
+                gameMenu(client);
+            } catch (NumberFormatException e) {
+                out.println("\u001b[31m  Invalid game ID");
+                postLogin();
+            }
         } else if (inputWords[0].equalsIgnoreCase("observe") && inputWords.length != 2){
             out.println("\u001b[31m  You must enter a game ID");
             postLogin();
@@ -259,6 +282,9 @@ public class Main {
         if (inputWords[0].equalsIgnoreCase("redraw") && inputWords.length == 1) {
             chessGame = serverHandler.getGameHandler(currGameID);
             chessGame.getBoard().flipBoardVerticalAxis();
+            if (teamColor.equalsIgnoreCase("black")) {
+                chessGame.getBoard().reverseBoard();
+            }
             drawLetters(out, 1, teamColor);
             printBoard(out, teamColor, null);
             drawLetters(out, 2, teamColor);
@@ -302,7 +328,16 @@ public class Main {
             UserGameCommand leaveCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, currGameID);
             client.send(leaveCommand);
             client.close();
-            serverHandler.leaveGameHandler(currGameID, username);
+            if (joinedAsPlayer) {
+                serverHandler.leaveGameHandler(currGameID, username);
+            }
+            postLogin();
+        }
+
+        else if (inputWords[0].equalsIgnoreCase("resign")) {
+            UserGameCommand resignCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, currGameID);
+            client.send(resignCommand);
+            gameMenu(client);
         }
 
 
@@ -368,6 +403,11 @@ public class Main {
 
     //FUNCTION THAT PRINTS THE SQUARES OF THE BOARD WITH THE PIECES IN THEM
     public static void printBoard(PrintStream out, String teamColor, String position) {
+        Set<ChessPosition> highlightSquares = new HashSet<>();
+        if (position != null) {
+            highlightSquare(position, highlightSquares);
+        }
+
         for (int boardRow = 0; boardRow < boardSize; boardRow++) {
             int rank;
             if (teamColor.equalsIgnoreCase("white")) {
@@ -382,10 +422,6 @@ public class Main {
                 for (int boardColumn = 0; boardColumn < boardSize; boardColumn++) {
                     boolean isLight = (boardRow + boardColumn) % 2 == 0;
                     ChessPosition currSquare = new ChessPosition(8 - boardRow, boardColumn + 1);
-                    Set<ChessPosition> highlightSquares = new HashSet<>();
-                    if (position != null) {
-                        highlightSquare(position, highlightSquares);
-                    }
                     boolean highlight = highlightSquares.contains(currSquare);
 
                     if (highlight) {
@@ -398,8 +434,6 @@ public class Main {
                     } else {
                         setBrown(out);
                     }
-
-
 
                     if (i == 1) {
                         printPiece(7 - boardRow, 7 - boardColumn);
@@ -461,7 +495,7 @@ public class Main {
         ChessPosition piecePosition = convertChessMove(position);
         ChessPiece piece = chessGame.getBoard().getPiece(piecePosition);
         if (piece != null){
-            for (ChessMove move : piece.pieceMoves(chessGame.getBoard(), piecePosition)) {
+            for (ChessMove move : chessGame.validMoves(piecePosition)) {
                 highlightSquares.add(move.getEndPosition());
             }
         }

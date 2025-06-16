@@ -107,33 +107,50 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece movingPiece = chessBoard.getPiece(move.getStartPosition());
 
-        //CHECK IF THE START POSITION HAS A PIECE
-        if (movingPiece == null){
+        if (movingPiece == null) {
             throw new InvalidMoveException();
         }
 
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
         ChessGame.TeamColor pieceColor = movingPiece.getTeamColor();
 
-        //IF MOVE IS A VALID MOVE AND IT IS THE RIGHT COLOR, MAKE MOVE
-        //KING ALSO CANNOT BE IN CHECK
-        if (validMoves.contains(move) && pieceColor == currentTurn &&
-            !isInCheck(movingPiece.getTeamColor())){
-            //HANDLE CASE WHERE PAWN IS PROMOTING
-            if (movingPiece.getPieceType() == ChessPiece.PieceType.PAWN &&
-                    (move.getEndPosition().getRow() == 8 || move.getEndPosition().getRow() == 1)){
-                chessBoard.addPiece(move.getEndPosition(), new ChessPiece(movingPiece.getTeamColor(), move.getPromotionPiece()));
-                chessBoard.removePiece(move.getStartPosition());
-            }
-            else {
-                chessBoard.addPiece(move.getEndPosition(), movingPiece);
-                chessBoard.removePiece(move.getStartPosition());
-            }
-            setTeamTurn(currentTurn == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
-        }
-        else {
+        if (!validMoves.contains(move) || pieceColor != currentTurn) {
             throw new InvalidMoveException();
         }
+
+        // Temporarily apply the move
+        ChessPiece captured = chessBoard.getPiece(move.getEndPosition());
+        chessBoard.removePiece(move.getStartPosition());
+        chessBoard.addPiece(move.getEndPosition(),
+                (movingPiece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                        (move.getEndPosition().getRow() == 1 || move.getEndPosition().getRow() == 8))
+                        ? new ChessPiece(pieceColor, move.getPromotionPiece())
+                        : movingPiece
+        );
+
+        boolean stillInCheck = isInCheck(pieceColor);
+
+        // Undo the move
+        chessBoard.removePiece(move.getEndPosition());
+        if (captured != null) {
+            chessBoard.addPiece(move.getEndPosition(), captured);
+        }
+        chessBoard.addPiece(move.getStartPosition(), movingPiece);
+
+        if (stillInCheck) {
+            throw new InvalidMoveException(); // Illegal because it leaves player in check
+        }
+
+        // Apply the move for real
+        if (movingPiece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                (move.getEndPosition().getRow() == 1 || move.getEndPosition().getRow() == 8)) {
+            chessBoard.addPiece(move.getEndPosition(), new ChessPiece(pieceColor, move.getPromotionPiece()));
+        } else {
+            chessBoard.addPiece(move.getEndPosition(), movingPiece);
+        }
+        chessBoard.removePiece(move.getStartPosition());
+
+        setTeamTurn(currentTurn == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
     }
 
     /**
