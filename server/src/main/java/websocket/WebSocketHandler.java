@@ -144,7 +144,6 @@ public class WebSocketHandler {
                 connections.remove(gameID, authToken);
                 connections.broadcast(gameID, new NotificationMessage(username + " has left the game"));
             } else if (command.getCommandType() == UserGameCommand.CommandType.RESIGN) {
-                connections.broadcast(gameID, new NotificationMessage(username + " has resigned AND LOST HAHAA"));
                 handleResignCommand(username, gameID, authToken);
             }
         } catch (Exception e) {
@@ -178,7 +177,7 @@ public class WebSocketHandler {
             }
 
             if (resignedGames.contains(gameID)) {
-                connections.send(gameID, authToken, new ErrorMessage("Game already resigned."));
+                connections.send(gameID, authToken, new NotificationMessage("Game already resigned."));
                 return;
             }
 
