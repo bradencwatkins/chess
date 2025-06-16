@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -14,7 +15,6 @@ public interface DataAccess {
 
     AuthData createAuth(AuthData auth) throws DataAccessException;
     AuthData getAuth(String authToken) throws DataAccessException;
-    AuthData getAuthByUsername(String username) throws DataAccessException;
     void deleteAuth(String authToken) throws DataAccessException;
     void clearAuth() throws DataAccessException;
 
@@ -23,6 +23,7 @@ public interface DataAccess {
     GameData getGame(int gameID) throws DataAccessException;
     GameMetadata[] getGamesData() throws DataAccessException;
     String getUsernameByToken(String authToken) throws  DataAccessException;
+    void updateGameState(int gameID, ChessGame game) throws DataAccessException;
     void updateGame(String playerColor, String username, int gameID) throws DataAccessException;
     void clearGames() throws DataAccessException;
 

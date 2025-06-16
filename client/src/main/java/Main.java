@@ -262,7 +262,7 @@ public class Main {
             drawLetters(out, 1, teamColor);
             printBoard(out, teamColor, null);
             drawLetters(out, 2, teamColor);
-            gameMenu(null);
+            gameMenu(client);
         }
 
 

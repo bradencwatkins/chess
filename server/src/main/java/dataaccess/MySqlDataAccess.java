@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.UserData;
@@ -80,23 +81,6 @@ public class MySqlDataAccess implements DataAccess {
         var statement = "INSERT INTO auth (authToken, username, json) VALUES (?, ?, ?)";
         var id = executeUpdate(statement, auth.authToken(), auth.username(), json);
         return auth;
-    }
-
-    public AuthData getAuthByUsername(String username) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM auth WHERE username=?";
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, username);
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        return readAuth(rs);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new DataAccessException("Unable to read auth by username");
-        }
-        return null;
     }
 
     public AuthData getAuth(String auth) throws DataAccessException {
@@ -205,6 +189,21 @@ public class MySqlDataAccess implements DataAccess {
 
         String statement = "UPDATE game SET whiteUsername = ?, blackUsername = ?, json = ? WHERE gameID=?";
         executeUpdate(statement, white, black, newJson, gameID);
+    }
+
+    public void updateGameState(int gameID, ChessGame updatedGame) throws DataAccessException {
+        GameData oldGame = getGame(gameID);
+
+        String updatedJson = new Gson().toJson(new GameData(
+                gameID,
+                oldGame.whiteUsername(),
+                oldGame.blackUsername(),
+                oldGame.gameName(),
+                updatedGame
+        ));
+
+        String statement = "UPDATE game SET json = ? WHERE gameID = ?";
+        executeUpdate(statement, updatedJson, gameID);
     }
 
     public void clearGames() throws DataAccessException {

@@ -78,7 +78,7 @@ public class WebSocketHandler {
 
             try {
                 game.makeMove(move);
-                //dataAccess.updateGame(color, faysdfa);
+                dataAccess.updateGameState(gameID, game);
 
                 String notificationText = username + " made a move";
                 connections.broadcast(command.getGameID(), new NotificationMessage(notificationText));
