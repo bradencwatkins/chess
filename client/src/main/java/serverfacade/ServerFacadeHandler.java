@@ -151,6 +151,24 @@ public class ServerFacadeHandler {
         }
     }
 
+    public void leaveGameHandler(int gameID, String username){
+        try {
+            Map<String, Object> request = new HashMap<>();
+            request.put("gameID", gameID);
+            request.put("username", username);
+
+            server.leaveGame(request);
+
+            out.println("\u001b[36m  Successfully left game " + gameID);
+        } catch (NumberFormatException e) {
+            out.println("\u001b[31m  Invalid gameID format");
+        } catch (ServerException e) {
+            out.println("\u001b[31m  " + e.getMessage());
+        } catch (Exception e) {
+            out.println("\u001b[31m  Server failure");
+        }
+    }
+
     public ChessGame getGameHandler(int gameID) {
         try {
             Map<String, Object> response = server.getGameState(gameID);

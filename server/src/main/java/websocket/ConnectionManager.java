@@ -5,6 +5,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,10 +31,31 @@ public class ConnectionManager {
     public void broadcast(int gameId, ServerMessage message) throws IOException {
         Map<String, Session> sessions = gameConnections.get(gameId);
         if (sessions != null) {
-            for (Session session : sessions.values()) {
+            // Iterate with iterator so we can remove closed sessions safely
+            Iterator<Map.Entry<String, Session>> it = sessions.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, Session> entry = it.next();
+                Session session = entry.getValue();
                 if (session.isOpen()) {
                     session.getRemote().sendString(ServerMessage.toJson(message));
+                } else {
+                    // Remove dead session from the map
+                    it.remove();
                 }
+            }
+            // If after removal map is empty, remove the whole gameId key
+            if (sessions.isEmpty()) {
+                gameConnections.remove(gameId);
+            }
+        }
+    }
+
+    public void send(int gameId, String authToken, ServerMessage message) throws IOException {
+        Map<String, Session> gameMap = gameConnections.get(gameId);
+        if (gameMap != null) {
+            Session session = gameMap.get(authToken);
+            if (session != null && session.isOpen()) {
+                session.getRemote().sendString(ServerMessage.toJson(message));
             }
         }
     }

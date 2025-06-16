@@ -298,6 +298,13 @@ public class Main {
             gameMenu(client);
         }
 
+        else if (inputWords[0].equalsIgnoreCase("leave")) {
+            UserGameCommand leaveCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, currGameID);
+            client.send(leaveCommand);
+            client.close();
+            serverHandler.leaveGameHandler(currGameID, username);
+        }
+
 
         //HELP STUFF
         else if (inputWords[0].equalsIgnoreCase("help")) {
@@ -343,6 +350,8 @@ public class Main {
             setGray(out);
             out.print(SPACE.repeat(80));
             out.println("\u001b[0m");
+            String currTurn = chessGame.getTeamTurn().toString();
+            out.println("\u001b[33mCURRENT TEAM TURN: " + currTurn);
         }
     }
 
@@ -473,7 +482,9 @@ public class Main {
             if (message instanceof NotificationMessage) {
                 System.out.println(((NotificationMessage) message).getMessage());
             } else if (message instanceof ErrorMessage) {
-                System.err.println("Error: " + ((ErrorMessage) message).getError());
+                System.err.println("Error: " + ((ErrorMessage) message).getErrorMessage());
+                loadBoard();
+                gameMenu(client);
             } else if (message instanceof LoadGameMessage) {
                 LoadGameMessage loadGameMessage = (LoadGameMessage) message;
                 chessGame = loadGameMessage.getGame();
@@ -481,12 +492,17 @@ public class Main {
                 if (teamColor.equalsIgnoreCase("black")) {
                     chessGame.getBoard().reverseBoard();
                 }
-                drawLetters(System.out, 1, teamColor);
-                printBoard(System.out, teamColor, null);
-                drawLetters(System.out, 2, teamColor);
+                loadBoard();
+                gameMenu(client);
             }
         }
     };
+
+    public static void loadBoard() {
+        drawLetters(System.out, 1, teamColor);
+        printBoard(System.out, teamColor, null);
+        drawLetters(System.out, 2, teamColor);
+    }
 
     private static void setGray(PrintStream out) {
         out.print(SET_BG_COLOR_LIGHT_GREY);

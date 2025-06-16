@@ -51,6 +51,10 @@ public class ServerFacade {
         makeRequest("DELETE", "/db", null);
     }
 
+    public Map<String, Object> leaveGame(Map<String, Object> request) throws Exception {
+        return makeRequest("PUT", "/game/leave", request);
+    }
+
 
     //CONNECTS SERVER FACADE TO SERVER
     private Map<String, Object> makeRequest(String method, String path, Map<String, Object> requestBody) throws Exception {

@@ -3,6 +3,7 @@ package websocket;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -49,13 +50,17 @@ public class WebSocketClient {
             handler.notify(load);
         } else if (base.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
             NotificationMessage note = gson.fromJson(message, NotificationMessage.class);
-            System.out.println(note.getMessage());
+            handler.notify(note);
+        } else if (base.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            ErrorMessage error = gson.fromJson(message, ErrorMessage.class);
+            handler.notify(error);
         }
     }
 
     @OnError
     public void onError(Session session, Throwable throwable) {
-        System.err.println("WebSocket error: " + throwable.getMessage());
+        String msg = throwable.getMessage();
+
     }
 
     @OnClose
@@ -64,6 +69,9 @@ public class WebSocketClient {
     }
 
     public void send(UserGameCommand command) throws RuntimeException {
+        if (session == null || !session.isOpen()) {
+            throw new RuntimeException("WebSocket session is not open");
+        }
         try {
             String json = gson.toJson(command);
             this.session.getBasicRemote().sendText(json);

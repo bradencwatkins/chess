@@ -72,7 +72,21 @@ public class WebSocketHandler {
                 connections.broadcast(command.getGameID(), error);
                 return;
             }
+            ChessGame.TeamColor playerColor = null;
+            if (username.equals(gameData.whiteUsername())) {
+                playerColor = ChessGame.TeamColor.WHITE;
+            } else if (username.equals(gameData.blackUsername())) {
+                playerColor = ChessGame.TeamColor.BLACK;
+            } else {
+                connections.send(gameID, authToken, new ErrorMessage("You are not a player in this game."));
+                return;
+            }
+
             ChessGame game = gameData.game();
+            if (game.getTeamTurn() != playerColor) {
+                connections.send(gameID, authToken, new ErrorMessage("It's not your turn."));
+                return;
+            }
             MakeMoveCommand moveCommand = (MakeMoveCommand) command;
             ChessMove move = moveCommand.getMove();
 
@@ -80,10 +94,8 @@ public class WebSocketHandler {
                 game.makeMove(move);
                 dataAccess.updateGameState(gameID, game);
 
-                String notificationText = username + " made a move";
-                connections.broadcast(command.getGameID(), new NotificationMessage(notificationText));
-                ServerMessage update = new LoadGameMessage(game);
-                connections.broadcast(command.getGameID(), update);
+                connections.broadcast(command.getGameID(), new NotificationMessage(username + " made a move"));
+                connections.broadcast(command.getGameID(), new LoadGameMessage(game));
             } catch (InvalidMoveException e) {
                 ServerMessage error = new ErrorMessage("Illegal Move");
                 connections.broadcast(command.getGameID(), error);

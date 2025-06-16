@@ -21,7 +21,9 @@ public class Server {
         Spark.post("/game", new CreateGameHandler());
         Spark.get("/game", new ListGameHandler());
         Spark.put("/game", new JoinGameHandler());
+        Spark.put("/game/leave", new LeaveGameHandler());
         Spark.get("/game/:id", new GetGameHandler());
+
 
 
         Spark.init();
