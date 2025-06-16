@@ -90,7 +90,7 @@ public class WebSocketHandler {
             }
 
 
-            String notificationText = dataAccess.getUsernameByToken(username + " made a move");
+            String notificationText = username + " made a move";
             connections.broadcast(command.getGameID(), new NotificationMessage(notificationText));
         }
         else if (command.getCommandType() == UserGameCommand.CommandType.LEAVE){
