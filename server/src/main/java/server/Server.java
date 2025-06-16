@@ -7,12 +7,6 @@ import websocket.WebSocketHandler;
 import static java.lang.System.out;
 
 public class Server {
-    private final WebSocketHandler webSocketHandler;
-
-    public Server() {
-        webSocketHandler = new WebSocketHandler();
-    }
-
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -28,7 +22,7 @@ public class Server {
         Spark.get("/game", new ListGameHandler());
         Spark.put("/game", new JoinGameHandler());
         Spark.get("/game/:id", new GetGameHandler());
-        Spark.webSocket("/ws", WebSocketHandler.class);
+        Spark.webSocket("/ws", new WebSocketHandler());
 
         Spark.init();
 

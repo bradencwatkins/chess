@@ -21,10 +21,11 @@ public class WebSocketClient {
         this.handler = handler;
         try {
             URI uri = new URI(serverUrl.replace("http", "ws") + "/ws");
-            System.out.println("Connecting to: " + uri);
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            System.out.println("server: " + uri);
             container.connectToServer(this, uri);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("WebSocket connection failed: " + e.getMessage());
         }
     }
