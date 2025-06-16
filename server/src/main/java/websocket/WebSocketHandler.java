@@ -48,110 +48,112 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
-        JsonObject obj = JsonParser.parseString(message).getAsJsonObject();
-        String type = obj.get("commandType").getAsString();
+        try {
+            JsonObject obj = JsonParser.parseString(message).getAsJsonObject();
+            String type = obj.get("commandType").getAsString();
 
-        UserGameCommand command;
-        if ("MAKE_MOVE".equals(type)) {
-            command = gson.fromJson(obj, MakeMoveCommand.class);
-        } else {
-            command = gson.fromJson(obj, UserGameCommand.class);
-        }
-        String authToken = command.getAuthToken();
-        DataAccess dataAccess = new MySqlDataAccess();
-        String username = dataAccess.getUsernameByToken(authToken);
-        if (username == null) {
-            session.getRemote().sendString(gson.toJson(new ErrorMessage("Invalid auth token")));
-            return;
-        }
-        int gameID = command.getGameID();
-
-
-        if (command.getCommandType() == UserGameCommand.CommandType.CONNECT){
-            connections.add(gameID, authToken, session);
-            GameData gameData = dataAccess.getGame(gameID);
-            if (gameData == null) {
-                connections.send(gameID, authToken, new ErrorMessage("Game not found."));
-                return;
-            }
-            String role;
-            if (username.equals(gameData.whiteUsername())) {
-                role = "White Player";
-            } else if (username.equals(gameData.blackUsername())) {
-                role = "Black Player";
+            UserGameCommand command;
+            if ("MAKE_MOVE".equals(type)) {
+                command = gson.fromJson(obj, MakeMoveCommand.class);
             } else {
-                role = "Observer";
+                command = gson.fromJson(obj, UserGameCommand.class);
             }
-
-            String customText = username + " joined game " + gameID + " as " + role;
-            NotificationMessage notification = new NotificationMessage(customText);
-            connections.broadcastExcept(gameID, authToken, notification);  // 👈 NEW
-            connections.send(gameID, authToken, new LoadGameMessage(gameData.game()));
-        }
-        else if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE){
-            if (resignedGames.contains(gameID)) {
-                connections.send(gameID, authToken, new ErrorMessage("Game is over."));
+            String authToken = command.getAuthToken();
+            DataAccess dataAccess = new MySqlDataAccess();
+            String username = dataAccess.getUsernameByToken(authToken);
+            if (username == null) {
+                session.getRemote().sendString(gson.toJson(new ErrorMessage("Invalid auth token")));
                 return;
             }
-            GameData gameData = dataAccess.getGame(command.getGameID());
-            if (gameData == null) {
-                ServerMessage error = new ErrorMessage("Game not found.");
-                connections.broadcast(command.getGameID(), error);
-                return;
-            }
-            ChessGame.TeamColor playerColor = null;
-            if (username.equals(gameData.whiteUsername())) {
-                playerColor = ChessGame.TeamColor.WHITE;
-            } else if (username.equals(gameData.blackUsername())) {
-                playerColor = ChessGame.TeamColor.BLACK;
-            } else {
-                connections.send(gameID, authToken, new ErrorMessage("You are not a player in this game."));
-                return;
-            }
+            int gameID = command.getGameID();
 
-            ChessGame game = gameData.game();
-            if (game.getTeamTurn() != playerColor) {
-                connections.send(gameID, authToken, new ErrorMessage("It's not your turn."));
-                return;
-            }
-            MakeMoveCommand moveCommand = (MakeMoveCommand) command;
-            ChessMove move = moveCommand.getMove();
-
-            try {
-                game.makeMove(move);
-                dataAccess.updateGameState(gameID, game);
-
-                connections.broadcast(command.getGameID(), new NotificationMessage(username + " made a move"));
-                connections.broadcast(command.getGameID(), new LoadGameMessage(game));
-
-                ChessGame.TeamColor nextToMove = game.getTeamTurn();
-
-                if (game.isInCheckmate(nextToMove)) {
-                    String winner = nextToMove == ChessGame.TeamColor.WHITE ? gameData.blackUsername() : gameData.whiteUsername();
-                    String loser = nextToMove == ChessGame.TeamColor.WHITE ? gameData.whiteUsername() : gameData.blackUsername();
-                    connections.broadcast(gameID, new NotificationMessage(loser + " is in checkmate. " + winner + " wins!"));
-                    resignedGames.add(gameID);
-                } else if (game.isInCheck(nextToMove)) {
-                    String inCheckPlayer = nextToMove == ChessGame.TeamColor.WHITE ? gameData.whiteUsername() : gameData.blackUsername();
-                    connections.broadcast(gameID, new NotificationMessage(inCheckPlayer + " is in check!"));
+            if (command.getCommandType() == UserGameCommand.CommandType.CONNECT) {
+                connections.add(gameID, authToken, session);
+                GameData gameData = dataAccess.getGame(gameID);
+                if (gameData == null) {
+                    connections.send(gameID, authToken, new ErrorMessage("Game not found."));
+                    return;
                 }
-            } catch (InvalidMoveException e) {
-                ServerMessage error = new ErrorMessage("Illegal Move");
-                connections.send(gameID, authToken, error);
-                return;
+                String role;
+                if (username.equals(gameData.whiteUsername())) {
+                    role = "White Player";
+                } else if (username.equals(gameData.blackUsername())) {
+                    role = "Black Player";
+                } else {
+                    role = "Observer";
+                }
+
+                String customText = username + " joined game " + gameID + " as " + role;
+                NotificationMessage notification = new NotificationMessage(customText);
+                connections.broadcastExcept(gameID, authToken, notification);  // 👈 NEW
+                connections.send(gameID, authToken, new LoadGameMessage(gameData.game()));
+            } else if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE) {
+                if (resignedGames.contains(gameID)) {
+                    connections.send(gameID, authToken, new ErrorMessage("Game is over."));
+                    return;
+                }
+                GameData gameData = dataAccess.getGame(command.getGameID());
+                if (gameData == null) {
+                    ServerMessage error = new ErrorMessage("Game not found.");
+                    connections.broadcast(command.getGameID(), error);
+                    return;
+                }
+                ChessGame.TeamColor playerColor = null;
+                if (username.equals(gameData.whiteUsername())) {
+                    playerColor = ChessGame.TeamColor.WHITE;
+                } else if (username.equals(gameData.blackUsername())) {
+                    playerColor = ChessGame.TeamColor.BLACK;
+                } else {
+                    connections.send(gameID, authToken, new ErrorMessage("You are not a player in this game."));
+                    return;
+                }
+
+                ChessGame game = gameData.game();
+                if (game.getTeamTurn() != playerColor) {
+                    connections.send(gameID, authToken, new ErrorMessage("It's not your turn."));
+                    return;
+                }
+                MakeMoveCommand moveCommand = (MakeMoveCommand) command;
+                ChessMove move = moveCommand.getMove();
+
+                try {
+                    game.makeMove(move);
+                    dataAccess.updateGameState(gameID, game);
+
+                    connections.broadcast(command.getGameID(), new NotificationMessage(username + " made a move"));
+                    connections.broadcast(command.getGameID(), new LoadGameMessage(game));
+
+                    ChessGame.TeamColor nextToMove = game.getTeamTurn();
+
+                    if (game.isInCheckmate(nextToMove)) {
+                        String winner = nextToMove == ChessGame.TeamColor.WHITE ? gameData.blackUsername() : gameData.whiteUsername();
+                        String loser = nextToMove == ChessGame.TeamColor.WHITE ? gameData.whiteUsername() : gameData.blackUsername();
+                        connections.broadcast(gameID, new NotificationMessage(loser + " is in checkmate. " + winner + " wins!"));
+                        resignedGames.add(gameID);
+                    } else if (game.isInCheck(nextToMove)) {
+                        String inCheckPlayer = nextToMove == ChessGame.TeamColor.WHITE ? gameData.whiteUsername() : gameData.blackUsername();
+                        connections.broadcast(gameID, new NotificationMessage(inCheckPlayer + " is in check!"));
+                    }
+                } catch (InvalidMoveException e) {
+                    ServerMessage error = new ErrorMessage("Illegal Move");
+                    connections.send(gameID, authToken, error);
+                    return;
+                }
+
+            } else if (command.getCommandType() == UserGameCommand.CommandType.LEAVE) {
+                connections.remove(gameID, authToken);
+                connections.broadcast(gameID, new NotificationMessage(username + " has left the game"));
+            } else if (command.getCommandType() == UserGameCommand.CommandType.RESIGN) {
+                connections.broadcast(gameID, new NotificationMessage(username + " has resigned AND LOST HAHAA"));
+                handleResignCommand(username, gameID, authToken);
             }
+        } catch (Exception e) {
+            try {
+                session.getRemote().sendString(gson.toJson(new ErrorMessage("Unexpected error: " + e.getMessage())));
 
-
-            String notificationText = username + " made a move";
-            connections.broadcast(command.getGameID(), new NotificationMessage(notificationText));
-        }
-        else if (command.getCommandType() == UserGameCommand.CommandType.LEAVE){
-            connections.remove(gameID, authToken);
-            connections.broadcast(gameID, new NotificationMessage(username + " has left the game"));
-        }
-        else if (command.getCommandType() == UserGameCommand.CommandType.RESIGN){
-            connections.broadcast(gameID, new NotificationMessage(username + " has resigned AND LOST HAHAA"));
-            handleResignCommand(username, gameID, authToken);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
 
     }
