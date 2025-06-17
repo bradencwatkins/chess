@@ -135,6 +135,12 @@ public class WebSocketHandler {
             } else if (command.getCommandType() == UserGameCommand.CommandType.LEAVE) {
                 connections.remove(gameID, authToken);
                 connections.broadcast(gameID, new NotificationMessage(username + " has left the game"));
+
+                if (username.equals(gameData.whiteUsername())) {
+                    dataAccess.updateGame("white", null, gameID);
+                } else if (username.equals(gameData.blackUsername())) {
+                    dataAccess.updateGame("black", null, gameID);
+                }
             } else if (command.getCommandType() == UserGameCommand.CommandType.RESIGN) {
                 handleResignCommand(username, gameID, authToken);
             }
