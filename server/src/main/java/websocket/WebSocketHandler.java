@@ -115,7 +115,7 @@ public class WebSocketHandler {
                 }
                 MakeMoveCommand moveCommand = (MakeMoveCommand) command;
                 ChessMove move = moveCommand.getMove();
-
+                //make the move
                 try {
                     game.makeMove(move);
                     dataAccess.updateGameState(gameID, game);
