@@ -57,16 +57,6 @@ public class WebSocketClient {
         }
     }
 
-    @OnError
-    public void onError(Session session, Throwable throwable) {
-        String msg = throwable.getMessage();
-
-    }
-
-    @OnClose
-    public void onClose(Session session, CloseReason closeReason) {
-        System.out.println("WebSocket closed: " + closeReason.getReasonPhrase());
-    }
 
     public void send(UserGameCommand command) throws RuntimeException {
         if (session == null || !session.isOpen()) {

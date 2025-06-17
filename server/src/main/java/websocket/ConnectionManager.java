@@ -71,10 +71,4 @@ public class ConnectionManager {
             }
         }
     }
-
-//    public Session getSession(String authToken) {
-//        return gameConnections.get(authToken);
-//    }
-
-
 }

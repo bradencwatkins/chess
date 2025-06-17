@@ -22,15 +22,6 @@ public class LeaveGameHandler implements Route {
             System.out.println("Auth header: " + req.headers("Authorization"));
             System.out.println("Request body: " + req.body());
 
-//            if (authToken == null || authToken.isBlank() ||
-//                    leaveGameRequest == null ||
-//                    leaveGameRequest.Username() == null || leaveGameRequest.Username().isBlank() ||
-//                    leaveGameRequest.GameID() == 0) {
-//
-//                res.status(400);
-//                return gson.toJson(new MessageResult("Error: Bad request"));
-//            }
-
             leaveGameService.leaveGame(authToken, leaveGameRequest.username(), leaveGameRequest.gameID());
 
             res.status(200);

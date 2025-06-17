@@ -36,7 +36,6 @@ import java.util.Set;
 public class WebSocketHandler {
     private final Gson gson = new Gson();
     private final ConnectionManager connections = new ConnectionManager();
-    private static final String[] headers = {"a", "b", "c", "d", "e", "f", "g", "h" };
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -48,7 +47,6 @@ public class WebSocketHandler {
         try {
             JsonObject obj = JsonParser.parseString(message).getAsJsonObject();
             String type = obj.get("commandType").getAsString();
-
             UserGameCommand command;
             if ("MAKE_MOVE".equals(type)) {
                 command = gson.fromJson(obj, MakeMoveCommand.class);
@@ -68,7 +66,6 @@ public class WebSocketHandler {
                 session.getRemote().sendString(gson.toJson(new ErrorMessage("Game not found.")));
                 return;
             }
-
             if (command.getCommandType() == UserGameCommand.CommandType.CONNECT) {
                 connections.add(gameID, authToken, session);
                 String role;
@@ -79,7 +76,6 @@ public class WebSocketHandler {
                 } else {
                     role = "Observer";
                 }
-
                 String customText = username + " joined game " + gameID + " as " + role;
                 NotificationMessage notification = new NotificationMessage(customText);
                 connections.broadcastExcept(gameID, authToken, notification);
@@ -98,7 +94,6 @@ public class WebSocketHandler {
                     connections.send(gameID, authToken, new ErrorMessage("You are not a player in this game."));
                     return;
                 }
-
                 ChessGame game = gameData.game();
                 if (game.getTeamTurn() != playerColor) {
                     connections.send(gameID, authToken, new ErrorMessage("It's not your turn."));
@@ -110,13 +105,9 @@ public class WebSocketHandler {
                 try {
                     game.makeMove(move);
                     dataAccess.updateGameState(gameID, game);
-
                     connections.broadcastExcept(gameID, authToken, new NotificationMessage(username + " made a move"));
                     connections.broadcast(gameID, new LoadGameMessage(game));
-
-
                     ChessGame.TeamColor nextToMove = game.getTeamTurn();
-
                     if (game.isInCheckmate(nextToMove)) {
                         String winner = nextToMove == ChessGame.TeamColor.WHITE ? gameData.blackUsername() : gameData.whiteUsername();
                         String loser = nextToMove == ChessGame.TeamColor.WHITE ? gameData.whiteUsername() : gameData.blackUsername();
@@ -131,11 +122,9 @@ public class WebSocketHandler {
                     connections.send(gameID, authToken, error);
                     return;
                 }
-
             } else if (command.getCommandType() == UserGameCommand.CommandType.LEAVE) {
                 connections.remove(gameID, authToken);
                 connections.broadcast(gameID, new NotificationMessage(username + " has left the game"));
-
                 if (username.equals(gameData.whiteUsername())) {
                     dataAccess.updateGame("white", null, gameID);
                 } else if (username.equals(gameData.blackUsername())) {
@@ -152,7 +141,6 @@ public class WebSocketHandler {
                 ex.printStackTrace();
             }
         }
-
     }
 
     @OnWebSocketClose
