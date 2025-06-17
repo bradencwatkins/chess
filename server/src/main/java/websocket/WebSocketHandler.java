@@ -37,9 +37,6 @@ public class WebSocketHandler {
     private final Gson gson = new Gson();
     private final ConnectionManager connections = new ConnectionManager();
     private static final String[] headers = {"a", "b", "c", "d", "e", "f", "g", "h" };
-    private final Set<Integer> resignedGames = new HashSet<>();
-
-
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -66,14 +63,14 @@ public class WebSocketHandler {
                 return;
             }
             int gameID = command.getGameID();
+            GameData gameData = dataAccess.getGame(gameID);
+            if (gameData == null) {
+                session.getRemote().sendString(gson.toJson(new ErrorMessage("Game not found.")));
+                return;
+            }
 
             if (command.getCommandType() == UserGameCommand.CommandType.CONNECT) {
                 connections.add(gameID, authToken, session);
-                GameData gameData = dataAccess.getGame(gameID);
-                if (gameData == null) {
-                    connections.send(gameID, authToken, new ErrorMessage("Game not found."));
-                    return;
-                }
                 String role;
                 if (username.equals(gameData.whiteUsername())) {
                     role = "White Player";
@@ -85,17 +82,11 @@ public class WebSocketHandler {
 
                 String customText = username + " joined game " + gameID + " as " + role;
                 NotificationMessage notification = new NotificationMessage(customText);
-                connections.broadcastExcept(gameID, authToken, notification);  // 👈 NEW
+                connections.broadcastExcept(gameID, authToken, notification);
                 connections.send(gameID, authToken, new LoadGameMessage(gameData.game()));
             } else if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE) {
-                if (resignedGames.contains(gameID)) {
+                if (gameData.game().isOver()) {
                     connections.send(gameID, authToken, new ErrorMessage("Game is over."));
-                    return;
-                }
-                GameData gameData = dataAccess.getGame(command.getGameID());
-                if (gameData == null) {
-                    ServerMessage error = new ErrorMessage("Game not found.");
-                    connections.broadcast(command.getGameID(), error);
                     return;
                 }
                 ChessGame.TeamColor playerColor = null;
@@ -120,8 +111,8 @@ public class WebSocketHandler {
                     game.makeMove(move);
                     dataAccess.updateGameState(gameID, game);
 
-                    connections.broadcast(command.getGameID(), new LoadGameMessage(game));
-                    connections.broadcast(command.getGameID(), new NotificationMessage(username + " made a move"));
+                    connections.broadcastExcept(gameID, authToken, new NotificationMessage(username + " made a move"));
+                    connections.broadcast(gameID, new LoadGameMessage(game));
 
 
                     ChessGame.TeamColor nextToMove = game.getTeamTurn();
@@ -130,7 +121,7 @@ public class WebSocketHandler {
                         String winner = nextToMove == ChessGame.TeamColor.WHITE ? gameData.blackUsername() : gameData.whiteUsername();
                         String loser = nextToMove == ChessGame.TeamColor.WHITE ? gameData.whiteUsername() : gameData.blackUsername();
                         connections.broadcast(gameID, new NotificationMessage(loser + " is in checkmate. " + winner + " wins!"));
-                        resignedGames.add(gameID);
+                        game.setGameOver(true);
                     } else if (game.isInCheck(nextToMove)) {
                         String inCheckPlayer = nextToMove == ChessGame.TeamColor.WHITE ? gameData.whiteUsername() : gameData.blackUsername();
                         connections.broadcast(gameID, new NotificationMessage(inCheckPlayer + " is in check!"));
@@ -166,25 +157,32 @@ public class WebSocketHandler {
     private void handleResignCommand(String username, int gameID, String authToken) {
         try {
             DataAccess dataAccess = new MySqlDataAccess();
-            GameData game = dataAccess.getGame(gameID);
-            if (game == null) {
+            GameData gameData = dataAccess.getGame(gameID);
+            if (gameData == null) {
                 connections.send(gameID, authToken, new ErrorMessage("Game not found."));
                 return;
             }
 
-            if (!username.equals(game.whiteUsername()) && !username.equals(game.blackUsername())) {
+            ChessGame game = gameData.game();
+
+            if (!username.equals(gameData.whiteUsername()) && !username.equals(gameData.blackUsername())) {
                 connections.send(gameID, authToken, new ErrorMessage("You're not a player in this game."));
                 return;
             }
 
-            if (resignedGames.contains(gameID)) {
-                connections.broadcast(gameID, new NotificationMessage("Game already resigned."));
+            if (game.isOver()) {
+                if (username.equals(gameData.whiteUsername())) {
+                    connections.send(gameID, authToken, new ErrorMessage("Game already resigned."));
+                } else {
+                    connections.broadcast(gameID, new NotificationMessage("Game already resigned."));
+                }
                 return;
             }
 
-            resignedGames.add(gameID);
+            game.setGameOver(true);
+            dataAccess.updateGameState(gameID, game);
 
-            String winner = username.equals(game.whiteUsername()) ? game.blackUsername() : game.whiteUsername();
+            String winner = username.equals(gameData.whiteUsername()) ? gameData.blackUsername() : gameData.whiteUsername();
             connections.broadcast(gameID, new NotificationMessage(username + " has resigned. " + winner + " wins!"));
         } catch (Exception e) {
             try {
