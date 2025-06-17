@@ -120,8 +120,9 @@ public class WebSocketHandler {
                     game.makeMove(move);
                     dataAccess.updateGameState(gameID, game);
 
-                    connections.broadcast(command.getGameID(), new NotificationMessage(username + " made a move"));
                     connections.broadcast(command.getGameID(), new LoadGameMessage(game));
+                    connections.broadcast(command.getGameID(), new NotificationMessage(username + " made a move"));
+
 
                     ChessGame.TeamColor nextToMove = game.getTeamTurn();
 
