@@ -117,23 +117,17 @@ public class Main {
         out.print("[" + status + "] >>> ");
         input = scanner.nextLine();
         inputWords = input.trim().split("\\s+");
-
-        //SEND REQUEST TO CREATE A GAME
         if (inputWords[0].equalsIgnoreCase("create") && inputWords.length == 2) {
             serverHandler.createGameHandler(inputWords);
             postLogin();
         } else if (inputWords[0].equalsIgnoreCase("create") && inputWords.length != 2){
             out.println("\u001b[31m  You must enter a game name");
             postLogin();
-        }
-
-        //SEND REQUEST TO LIST GAMES
+        } //SEND REQUEST TO LIST GAMES
         else if (inputWords[0].equalsIgnoreCase("list")) {
             serverHandler.listGameHandler();
             postLogin();
-        }
-
-        //JOINING A GAME
+        } //JOINING A GAME
         else if (inputWords[0].equalsIgnoreCase("join") && inputWords.length == 3) {
             if (inputWords[2].equalsIgnoreCase("white") || inputWords[2].equalsIgnoreCase("black")){
                 serverHandler.joinGameHandler(inputWords);
@@ -168,8 +162,7 @@ public class Main {
         } else if (inputWords[0].equalsIgnoreCase("join") && inputWords.length != 3){
             out.println("\u001b[31m  You must enter ID, COLOR");
             postLogin();
-        }
-        //OBSERVE A GAME
+        } //OBSERVE A GAME
         else if (inputWords[0].equalsIgnoreCase("observe") && inputWords.length == 2) {
             try {
                 currGameID = Integer.parseInt(inputWords[1]);
@@ -184,11 +177,9 @@ public class Main {
                 }
                 String serverUrl = "http://localhost:8080";
                 client = new WebSocketClient(serverUrl, handler);
-
                 UserGameCommand connectCommand = new UserGameCommand(
                         UserGameCommand.CommandType.CONNECT, authToken, currGameID);
                 client.send(connectCommand);
-
                 chessGame.getBoard().flipBoardVerticalAxis();
                 drawLetters(out, 1, "white");
                 printBoard(out, "white", null);
@@ -202,23 +193,18 @@ public class Main {
         } else if (inputWords[0].equalsIgnoreCase("observe") && inputWords.length != 2){
             out.println("\u001b[31m  You must enter a game ID");
             postLogin();
-        }
-        //LOGGING OUT
+        } //LOGGING OUT
         else if (inputWords[0].equalsIgnoreCase("logout")) {
             serverHandler.logoutHandler();
             preLogin();
-        }
-        //HELP STUFF
+        } //HELP STUFF
         else if (inputWords[0].equalsIgnoreCase("help")) {
             HelpPrint.printPostLoginHelp(out);
             postLogin();
-        }
-
-        //QUITTING
+        } //QUITTING
         else if (inputWords[0].equalsIgnoreCase("quit") || inputWords[0].equalsIgnoreCase("q")) {
             System.exit(0);
         }
-
         else {
             out.println("  \u001b[31m  You must enter a valid command");
             postLogin();
@@ -232,7 +218,6 @@ public class Main {
         out.print("[" + status + "] >>> ");
         input = scanner.nextLine();
         inputWords = input.trim().split("\\s+");
-
         //REDRAW THE BOARD
         if (inputWords[0].equalsIgnoreCase("redraw") && inputWords.length == 1) {
             chessGame = serverHandler.getGameHandler(currGameID);
@@ -245,7 +230,6 @@ public class Main {
             drawLetters(out, 2, teamColor);
             gameMenu(client);
         }
-
 
         else if (inputWords[0].equalsIgnoreCase("highlight") && inputWords.length == 2) {
             chessGame = serverHandler.getGameHandler(currGameID);
@@ -294,8 +278,6 @@ public class Main {
             client.send(resignCommand);
             gameMenu(client);
         }
-
-
         //HELP STUFF
         else if (inputWords[0].equalsIgnoreCase("help")) {
             HelpPrint.printGameMenuHelp(out);
@@ -353,7 +335,6 @@ public class Main {
         if (position != null) {
             highlightSquare(position, highlightSquares);
         }
-
         for (int boardRow = 0; boardRow < boardSize; boardRow++) {
             int rank;
             if (teamColor.equalsIgnoreCase("white")) {
@@ -396,7 +377,6 @@ public class Main {
                 out.println("\u001b[0m");
             }
         }
-
     }
 
     //FUNCTION TO PRINT THE PIECE ON THE SQUARE
