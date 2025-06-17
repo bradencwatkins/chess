@@ -177,7 +177,7 @@ public class WebSocketHandler {
             }
 
             if (resignedGames.contains(gameID)) {
-                connections.send(gameID, authToken, new NotificationMessage("Game already resigned."));
+                connections.broadcast(gameID, new NotificationMessage("Game already resigned."));
                 return;
             }
 
